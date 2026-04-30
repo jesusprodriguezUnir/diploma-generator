@@ -2,10 +2,10 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Generador de Diplomas Multiescuela',
-    short_name: 'Diploma Generator',
+    name: 'Generador de Fichas de Practicas Multiescuela',
+    short_name: 'Ficha Generator',
     description:
-      'Genera diplomas personalizados automáticamente para múltiples escuelas.',
+      'Genera fichas de practicas personalizadas automaticamente para multiples escuelas.',
     start_url: '/',
     display: 'standalone',
     background_color: '#0B0F1A',

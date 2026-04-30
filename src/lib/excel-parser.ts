@@ -1,35 +1,5 @@
 import * as XLSX from 'xlsx';
-import type { ExcelRow, SchoolConfig, ValidationResult, FichaSchoolConfig } from './types';
-
-/**
- * Lee un archivo .xlsx y devuelve un array de objetos clave-valor.
- * Cada objeto representa una fila del Excel, usando los headers como claves.
- */
-export async function parseExcelFile(file: File): Promise<ExcelRow[]> {
-  const buffer = await file.arrayBuffer();
-  const workbook = XLSX.read(buffer, { type: 'array' });
-
-  const firstSheetName = workbook.SheetNames[0];
-  if (!firstSheetName) {
-    throw new Error('El archivo Excel no contiene hojas de cálculo.');
-  }
-
-  const worksheet = workbook.Sheets[firstSheetName];
-  if (!worksheet) {
-    throw new Error('No se pudo leer la hoja de cálculo.');
-  }
-
-  const rows: ExcelRow[] = XLSX.utils.sheet_to_json(worksheet, {
-    defval: '',
-    raw: false,
-  });
-
-  if (rows.length === 0) {
-    throw new Error('El archivo Excel está vacío o no contiene datos.');
-  }
-
-  return rows;
-}
+import type { ExcelRow, ValidationResult, FichaSchoolConfig } from './types';
 
 /**
  * Lee todas las hojas de un .xlsx y las concatena en un único array.
@@ -113,7 +83,7 @@ export function filterEmptyPracticantes(rows: ExcelRow[]): ExcelRow[] {
  */
 export function validateExcelHeaders(
   rows: ExcelRow[],
-  config: SchoolConfig | FichaSchoolConfig
+  config: FichaSchoolConfig
 ): ValidationResult {
   if (rows.length === 0) {
     return {
@@ -123,24 +93,21 @@ export function validateExcelHeaders(
     };
   }
 
-  const excelHeaders = Object.keys(rows[0]).map((h) => h.trim());
+  const excelHeaders = new Set(Object.keys(rows[0]).map((h) => h.trim()));
   const requiredColumns = Object.keys(config.mapeoColumnas);
 
   const foundColumns = requiredColumns.filter((col) =>
-    excelHeaders.includes(col.trim())
+    excelHeaders.has(col.trim())
   );
   const missingColumns = requiredColumns.filter(
-    (col) => !excelHeaders.includes(col.trim())
+    (col) => !excelHeaders.has(col.trim())
   );
 
-  // Para fichas, solo requerimos las columnas "core" de identidad del alumno
-  const isFicha = (config as FichaSchoolConfig).modo === 'ficha';
-  const coreColumns = isFicha
-    ? ['PRIMER APELLIDO', 'NOMBRE', 'D.N.I.']
-    : requiredColumns;
+  // Para fichas, solo requerimos las columnas "core" de identidad del alumno.
+  const coreColumns = new Set(['PRIMER APELLIDO', 'NOMBRE', 'D.N.I.']);
 
   const coreMissing = missingColumns.filter((col) =>
-    coreColumns.includes(col.trim())
+    coreColumns.has(col.trim())
   );
 
   return {
@@ -148,11 +115,4 @@ export function validateExcelHeaders(
     missingColumns,
     foundColumns,
   };
-}
-
-/**
- * Devuelve las primeras N filas para preview.
- */
-export function getPreviewRows(rows: ExcelRow[], count: number = 3): ExcelRow[] {
-  return rows.slice(0, count);
 }

@@ -14,7 +14,7 @@ function getHtml2PdfOptions(orientation: 'portrait' | 'landscape' = 'landscape')
     jsPDF: {
       unit: 'mm' as const,
       format: 'a4',
-      orientation: orientation as 'portrait' | 'landscape',
+      orientation,
     },
     pagebreak: { mode: ['css', 'legacy'] as string[] },
   };
@@ -30,7 +30,7 @@ export async function generateSinglePDF(
 ): Promise<Blob> {
   const html2pdf = (await import('html2pdf.js')).default;
 
-  const opt = { ...getHtml2PdfOptions(orientation), filename: 'diploma.pdf' };
+  const opt = { ...getHtml2PdfOptions(orientation), filename: 'documento.pdf' };
 
   const blob: Blob = await html2pdf()
     .set(opt)
@@ -41,7 +41,7 @@ export async function generateSinglePDF(
 }
 
 /**
- * Genera un solo PDF con todos los diplomas/fichas, uno por página.
+ * Genera un solo PDF con todos los documentos, uno por pagina.
  * Acepta un array de elementos HTML (uno por item).
  */
 export async function generateAllPDFs(
@@ -62,13 +62,13 @@ export async function generateAllPDFs(
 
   const opt = getHtml2PdfOptions(orientation);
 
-  // Crear un contenedor temporal con todos los diplomas separados por saltos de página
+  // Crear un contenedor temporal con todos los documentos separados por saltos de pagina
   const container = document.createElement('div');
 
   elements.forEach((el, index) => {
     const wrapper = document.createElement('div');
-    wrapper.style.pageBreakAfter = index < elements.length - 1 ? 'always' : 'auto';
-    wrapper.style.pageBreakInside = 'avoid';
+    wrapper.style.breakAfter = index < elements.length - 1 ? 'page' : 'auto';
+    wrapper.style.breakInside = 'avoid';
     wrapper.innerHTML = el.innerHTML;
     // Copy inline styles from original
     wrapper.className = el.className;
@@ -78,7 +78,7 @@ export async function generateAllPDFs(
       status: 'processing',
       current: index + 1,
       total,
-      message: `Preparando diploma ${index + 1} de ${total}...`,
+      message: `Preparando documento ${index + 1} de ${total}...`,
     });
   });
 
@@ -105,7 +105,7 @@ export async function generateAllPDFs(
 }
 
 /**
- * Genera un ZIP con un PDF individual por cada diploma/ficha.
+ * Genera un ZIP con un PDF individual por cada documento.
  */
 export async function generateZipPDFs(
   elements: HTMLElement[],
@@ -126,7 +126,7 @@ export async function generateZipPDFs(
       status: 'processing',
       current: i + 1,
       total,
-      message: `Generando diploma ${i + 1} de ${total}: ${studentNames[i]}...`,
+      message: `Generando documento ${i + 1} de ${total}: ${studentNames[i]}...`,
     });
 
     const pdfBlob: Blob = await html2pdf()
@@ -134,11 +134,11 @@ export async function generateZipPDFs(
       .from(elements[i])
       .outputPdf('blob');
 
-    const safeName = (studentNames[i] || `diploma-${i + 1}`)
+    const safeName = (studentNames[i] || `documento-${i + 1}`)
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-zA-Z0-9\s-]/g, '')
-      .replace(/\s+/g, '_');
+      .replaceAll(/[\u0300-\u036f]/g, '')
+      .replaceAll(/[^a-zA-Z0-9\s-]/g, '')
+      .replaceAll(/\s+/g, '_');
 
     zip.file(`${safeName}.pdf`, pdfBlob);
   }
@@ -156,7 +156,7 @@ export async function generateZipPDFs(
     status: 'complete',
     current: total,
     total,
-    message: '¡ZIP con todos los diplomas generado con éxito!',
+    message: '¡ZIP con todos los documentos generado con exito!',
   });
 
   return zipBlob;
@@ -172,6 +172,6 @@ export function downloadBlob(blob: Blob, filename: string): void {
   a.download = filename;
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
+  a.remove();
   URL.revokeObjectURL(url);
 }

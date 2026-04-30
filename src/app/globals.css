@@ -1,31 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0B0F1A;
-  --foreground: #E8ECF4;
-  --card-bg: rgba(17, 24, 45, 0.85);
-  --card-border: rgba(99, 130, 255, 0.12);
-  --accent: #6C8CFF;
-  --accent-glow: rgba(108, 140, 255, 0.25);
-  --accent-secondary: #A78BFA;
-  --success: #34D399;
-  --warning: #FBBF24;
-  --error: #F87171;
-  --surface-hover: rgba(108, 140, 255, 0.08);
-  --text-secondary: #8B95B0;
-  --text-muted: #5A6478;
+  --background: #f3f6fb;
+  --foreground: #10223f;
+  --card-bg: rgba(255, 255, 255, 0.86);
+  --card-border: rgba(16, 34, 63, 0.14);
+  --accent: #0f766e;
+  --accent-glow: rgba(15, 118, 110, 0.2);
+  --accent-secondary: #1d4ed8;
+  --success: #15803d;
+  --warning: #b45309;
+  --error: #b91c1c;
+  --surface: rgba(249, 251, 255, 0.9);
+  --surface-hover: rgba(15, 118, 110, 0.09);
+  --text-primary: #10223f;
+  --text-secondary: #355079;
+  --text-muted: #62718a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-sans: var(--font-manrope), "Segoe UI", sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-manrope), "Segoe UI", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-sora), var(--font-manrope), "Segoe UI", sans-serif;
 }
 
 /* ============================================================
@@ -34,13 +43,13 @@ body {
 .glass-card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(14px);
   border-radius: 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
-  border-color: rgba(99, 130, 255, 0.25);
+  border-color: rgba(15, 118, 110, 0.25);
   box-shadow: 0 0 30px var(--accent-glow);
 }
 
@@ -49,15 +58,15 @@ body {
    ============================================================ */
 .bg-gradient-animated {
   background: linear-gradient(
-    135deg,
-    #0B0F1A 0%,
-    #111830 25%,
-    #0F1628 50%,
-    #141E38 75%,
-    #0B0F1A 100%
+    145deg,
+    #eef4ff 0%,
+    #d7e6ff 28%,
+    #eaf6f5 55%,
+    #fef7e8 80%,
+    #eef4ff 100%
   );
   background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  animation: gradientShift 18s ease infinite;
 }
 
 @keyframes gradientShift {
@@ -115,7 +124,7 @@ body {
    ============================================================ */
 .btn-glow {
   position: relative;
-  background: linear-gradient(135deg, #6C8CFF 0%, #A78BFA 100%);
+  background: linear-gradient(135deg, #0f766e 0%, #1d4ed8 100%);
   border: none;
   border-radius: 12px;
   color: white;
@@ -130,7 +139,7 @@ body {
   content: '';
   position: absolute;
   inset: -2px;
-  background: linear-gradient(135deg, #6C8CFF 0%, #A78BFA 50%, #6C8CFF 100%);
+  background: linear-gradient(135deg, #0f766e 0%, #1d4ed8 50%, #0f766e 100%);
   border-radius: 14px;
   z-index: -1;
   opacity: 0;
@@ -144,7 +153,7 @@ body {
 
 .btn-glow:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(108, 140, 255, 0.4);
+  box-shadow: 0 8px 30px rgba(15, 118, 110, 0.35);
 }
 
 .btn-glow:active {
@@ -165,17 +174,17 @@ body {
    Drag & Drop Zone
    ============================================================ */
 .drop-zone {
-  border: 2px dashed rgba(108, 140, 255, 0.3);
+  border: 2px dashed rgba(15, 118, 110, 0.35);
   border-radius: 16px;
   transition: all 0.3s ease;
-  background: rgba(108, 140, 255, 0.03);
+  background: rgba(15, 118, 110, 0.04);
 }
 
 .drop-zone:hover,
 .drop-zone.drag-over {
   border-color: var(--accent);
-  background: rgba(108, 140, 255, 0.08);
-  box-shadow: inset 0 0 30px rgba(108, 140, 255, 0.05);
+  background: rgba(15, 118, 110, 0.09);
+  box-shadow: inset 0 0 30px rgba(15, 118, 110, 0.07);
 }
 
 .drop-zone.has-file {
@@ -189,7 +198,7 @@ body {
    ============================================================ */
 .custom-select {
   appearance: none;
-  background: rgba(17, 24, 45, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   border: 1px solid var(--card-border);
   border-radius: 12px;
   color: var(--foreground);
@@ -197,7 +206,7 @@ body {
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236C8CFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
 }
@@ -226,7 +235,7 @@ body {
 }
 
 .toggle-track.active {
-  background: linear-gradient(135deg, #6C8CFF 0%, #A78BFA 100%);
+  background: linear-gradient(135deg, #0f766e 0%, #1d4ed8 100%);
 }
 
 .toggle-thumb {
@@ -258,7 +267,7 @@ body {
 .progress-bar-fill {
   height: 100%;
   border-radius: 3px;
-  background: linear-gradient(90deg, #6C8CFF 0%, #A78BFA 100%);
+  background: linear-gradient(90deg, #0f766e 0%, #1d4ed8 100%);
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -271,8 +280,8 @@ body {
   gap: 6px;
   padding: 4px 12px;
   border-radius: 20px;
-  background: linear-gradient(135deg, rgba(108, 140, 255, 0.15), rgba(167, 139, 250, 0.15));
-  border: 1px solid rgba(108, 140, 255, 0.3);
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.16), rgba(29, 78, 216, 0.15));
+  border: 1px solid rgba(15, 118, 110, 0.3);
   color: var(--accent);
   font-size: 0.75rem;
   font-weight: 600;
@@ -282,8 +291,8 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 8px rgba(108, 140, 255, 0.2); }
-  50% { box-shadow: 0 0 16px rgba(108, 140, 255, 0.4); }
+  0%, 100% { box-shadow: 0 0 8px rgba(15, 118, 110, 0.24); }
+  50% { box-shadow: 0 0 16px rgba(29, 78, 216, 0.35); }
 }
 
 /* ============================================================
@@ -299,18 +308,25 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(108, 140, 255, 0.3);
+  background: rgba(15, 118, 110, 0.3);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(108, 140, 255, 0.5);
+  background: rgba(15, 118, 110, 0.5);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgba(15, 118, 110, 0.5);
+  outline-offset: 2px;
 }
 
 /* ============================================================
-   Diploma Print Styles (for PDF generation hidden rendering)
+  PDF Print Styles (for hidden rendering)
    ============================================================ */
-.diploma-render-container {
+.pdf-render-container {
   position: absolute;
   left: -9999px;
   top: -9999px;

@@ -1,9 +1,12 @@
 # Diploma Generator
 
-Aplicación web para generar documentos PDF desde Excel en dos modos:
+Aplicación web para generar fichas individuales de prácticas en PDF a partir de Excel.
 
-- Modo diploma: diplomas académicos multiescuela.
-- Modo ficha: ficha individual de prácticas para Escuela Nuestra Señora del Recuerdo.
+Estado actual del proyecto:
+
+- Modo activo: ficha de prácticas.
+- Escuela activa: Escuela Nuestra Señora del Recuerdo.
+- Flujo principal: subida de Excel (multihoja), selección de alumnos y generación PDF/ZIP.
 
 Stack principal: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, xlsx, html2pdf.js y jszip.
 
@@ -28,22 +31,43 @@ npm run dev
 npm run lint
 npm run build
 npm run start
+npm run test
+npm run test:unit
+npm run test:watch
+npm run test:e2e
+npm run test:ci
 ```
+
+## Testing
+
+La base de pruebas queda dividida en 3 niveles:
+
+- Unitarias (Vitest): lógica pura en src/lib
+- Integración (Vitest + Testing Library): componentes y comportamiento de UI
+- E2E (Playwright): flujo completo de la pantalla principal
+
+Estructura:
+
+```text
+tests/
+	unit/
+		lib/
+	integration/
+		components/
+	e2e/
+```
+
+Configuración principal:
+
+- vitest.config.ts
+- vitest.setup.ts
+- playwright.config.ts
+
+Nota para E2E: si es la primera vez, instala navegadores con `npx playwright install chromium`.
 
 ## Funcionalidad
 
-### 1) Modo diploma
-
-- Escuelas disponibles:
-	- Instituto Central de Educación
-	- Colegio Montessori Internacional
-- Flujo:
-	1. Seleccionar escuela.
-	2. Subir Excel o activar Demo.
-	3. Validar cabeceras contra el mapeo de la escuela.
-	4. Generar PDF único o ZIP con PDFs individuales.
-
-### 2) Modo ficha de prácticas
+### Modo ficha de prácticas
 
 - Escuela fija: Escuela Nuestra Señora del Recuerdo.
 - Flujo:
@@ -57,7 +81,7 @@ npm run start
 ## Formatos de salida
 
 - PDF único:
-	- Un solo archivo con una página por diploma/ficha.
+	- Un solo archivo con una página por ficha.
 - ZIP individual:
 	- Un PDF por alumno dentro de un .zip.
 
@@ -81,12 +105,12 @@ public/
 docs/            # Documentación y materiales fuente
 ```
 
+En [public/logos](public/logos) se han añadido firmas demo para validación visual:
+
+- [public/logos/firma-recuerdo-demo.png](public/logos/firma-recuerdo-demo.png)
+- [public/logos/firma-recuerdo-demo.svg](public/logos/firma-recuerdo-demo.svg)
+
 ## Configuración de escuelas
-
-### Diplomas
-
-- Configs en src/configs/*.json
-- Deben incluir: id, nombre, logo, estilos, mapeoColumnas, textosFijos
 
 ### Fichas de prácticas
 
@@ -95,6 +119,16 @@ docs/            # Documentación y materiales fuente
 	- modo: ficha
 	- mapeoColumnas específico de prácticas
 	- valoresFijos para rellenado del documento
+	- firma_escuela para render de firma en la plantilla
+
+## Firma de prueba
+
+Se han añadido dos recursos de prueba para comparar visualmente el trazo de firma:
+
+- PNG transparente: [public/logos/firma-recuerdo-demo.png](public/logos/firma-recuerdo-demo.png)
+- SVG vectorial: [public/logos/firma-recuerdo-demo.svg](public/logos/firma-recuerdo-demo.svg)
+
+La configuración actual apunta a la firma PNG demo en [src/configs/escuela-recuerdo.json](src/configs/escuela-recuerdo.json).
 
 ## Carpeta docs
 
@@ -138,8 +172,8 @@ Resumen:
 - Lint limpio: npm run lint
 - Build correcto: npm run build
 - Pruebas:
-	- PDF único con 1 elemento
-	- PDF único con 10 elementos
-	- ZIP individual con 10 elementos
+	- Unitarias e integración (Vitest): npm run test:unit
+	- E2E (Playwright): npm run test:e2e
+	- Suite CI local: npm run test:ci
 	- Error esperado al subir Excel con cabeceras inválidas
 	- Verificación en desktop y móvil

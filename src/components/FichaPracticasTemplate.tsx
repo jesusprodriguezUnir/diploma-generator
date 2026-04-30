@@ -1,6 +1,7 @@
 'use client';
 
-import { forwardRef } from 'react';
+import { forwardRef, useState } from 'react';
+import Image from 'next/image';
 import type { FichaData } from '@/lib/types';
 
 interface FichaPracticasTemplateProps {
@@ -50,6 +51,12 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
   function FichaPracticasTemplate({ data, scale = 1 }, ref) {
     const { practicante: p, school } = data;
     const fijos = school.valoresFijos;
+    const [showSignature, setShowSignature] = useState(Boolean(fijos.firma_escuela));
+    const fechaGeneracion = new Date().toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
 
     const nombreCompleto = [p.apellido1, p.apellido2, p.nombre]
       .filter(Boolean)
@@ -289,14 +296,42 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
         <div style={{ marginTop: '8mm', fontSize: '9pt', fontFamily: 'Arial, sans-serif' }}>
           <div>
             En {fijos.ciudad}, a{' '}
-            {p.fecha_firma ? `${p.fecha_firma}` : '_______ de ________________ de _______'}
+            {fechaGeneracion}
           </div>
           <div style={{ marginTop: '2mm', fontWeight: 'bold', textTransform: 'uppercase' }}>
             LA ESCUELA DE TIEMPO LIBRE
           </div>
           <div style={{ marginTop: '1mm' }}>El director o coordinador de la escuela</div>
           <div style={{ marginTop: '12mm' }}>
-            <div style={{ display: 'inline-block', width: '60mm', borderBottom: '1px solid #000', marginBottom: '1mm' }}></div>
+            <div style={{ position: 'relative', display: 'inline-block', width: '60mm', height: '16mm', marginBottom: '1mm' }}>
+              {showSignature && fijos.firma_escuela && (
+                <Image
+                  src={fijos.firma_escuela}
+                  alt="Firma escuela"
+                  width={220}
+                  height={60}
+                  unoptimized
+                  onError={() => setShowSignature(false)}
+                  style={{
+                    position: 'absolute',
+                    left: '0',
+                    bottom: '2mm',
+                    maxWidth: '58mm',
+                    maxHeight: '14mm',
+                    objectFit: 'contain',
+                  }}
+                />
+              )}
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '0',
+                  right: '0',
+                  bottom: '0',
+                  borderBottom: '1px solid #000',
+                }}
+              ></div>
+            </div>
           </div>
           <div>Fdo.: {fijos.director}</div>
           <div style={{ marginTop: '2mm', fontSize: '8pt', color: '#555' }}>

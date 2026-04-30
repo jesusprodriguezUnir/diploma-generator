@@ -1,31 +1,21 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
-import type { DiplomaData, FichaData, GenerationProgress } from '@/lib/types';
-import DiplomaTemplate from './DiplomaTemplate';
+import { useState, useRef, useCallback, type ReactNode } from 'react';
+import type { FichaData, GenerationProgress } from '@/lib/types';
 import FichaPracticasTemplate from './FichaPracticasTemplate';
 
 type OutputMode = 'single' | 'zip';
 
-interface GenerateButtonDiplomaProps {
-  mode: 'diploma';
-  items: DiplomaData[];
+interface GenerateButtonProps {
+  readonly items: FichaData[];
   disabled?: boolean;
 }
-
-interface GenerateButtonFichaProps {
-  mode: 'ficha';
-  items: FichaData[];
-  disabled?: boolean;
-}
-
-type GenerateButtonProps = GenerateButtonDiplomaProps | GenerateButtonFichaProps;
 
 const RECOMMENDED_BATCH_SIZE = 10;
 const MAX_BATCH_SIZE = 25;
 
-export default function GenerateButton(props: GenerateButtonProps) {
-  const { mode, items, disabled = false } = props;
+export default function GenerateButton(props: Readonly<GenerateButtonProps>) {
+  const { items, disabled = false } = props;
   const [progress, setProgress] = useState<GenerationProgress>({
     status: 'idle',
     current: 0,
@@ -35,24 +25,20 @@ export default function GenerateButton(props: GenerateButtonProps) {
   const [outputMode, setOutputMode] = useState<OutputMode>('single');
   const renderContainerRef = useRef<HTMLDivElement>(null);
 
-  const orientation = mode === 'ficha' ? 'portrait' : 'landscape';
-  const pageSelector = mode === 'ficha' ? '.ficha-page' : '.diploma-page';
-  const label = mode === 'ficha' ? 'fichas' : 'diplomas';
+  const orientation = 'portrait';
+  const pageSelector = '.ficha-page';
+  const label = 'fichas';
 
-  const getItemName = (item: DiplomaData | FichaData): string => {
-    if (mode === 'ficha') {
-      const p = (item as FichaData).practicante;
-      return [p.apellido1, p.apellido2, p.nombre]
-        .filter(Boolean)
-        .join('_');
-    }
-    return String((item as DiplomaData).student.nombre_alumno ?? `item`);
+  const getItemName = (item: FichaData): string => {
+    const p = item.practicante;
+    return [p.apellido1, p.apellido2, p.nombre]
+      .filter(Boolean)
+      .join('_');
   };
 
   const getSchoolId = (): string => {
     if (items.length === 0) return 'output';
-    if (mode === 'ficha') return (items[0] as FichaData).school.id;
-    return (items[0] as DiplomaData).school.id;
+    return items[0].school.id;
   };
 
   const handleGenerate = useCallback(async () => {
@@ -112,12 +98,38 @@ export default function GenerateButton(props: GenerateButtonProps) {
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, outputMode, mode, orientation, pageSelector, label]);
+  }, [items, outputMode, orientation, pageSelector, label]);
 
   const progressPercent =
     progress.total > 0
       ? Math.round((progress.current / progress.total) * 100)
       : 0;
+
+  let buttonContent: ReactNode;
+  if (progress.status === 'processing') {
+    buttonContent = (
+      <span className="flex items-center justify-center gap-2">
+        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+        Generando...
+      </span>
+    );
+  } else if (progress.status === 'complete') {
+    buttonContent = (
+      <span className="flex items-center justify-center gap-2">
+        ✅ ¡Descarga completada!
+      </span>
+    );
+  } else {
+    buttonContent = (
+      <span className="flex items-center justify-center gap-2">
+        📋 Generar {items.length} {label}{' '}
+        {outputMode === 'zip' ? '(ZIP)' : '(PDF)'}
+      </span>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -164,24 +176,7 @@ export default function GenerateButton(props: GenerateButtonProps) {
         onClick={handleGenerate}
         disabled={disabled || items.length === 0 || progress.status === 'processing'}
       >
-        {progress.status === 'processing' ? (
-          <span className="flex items-center justify-center gap-2">
-            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            Generando...
-          </span>
-        ) : progress.status === 'complete' ? (
-          <span className="flex items-center justify-center gap-2">
-            ✅ ¡Descarga completada!
-          </span>
-        ) : (
-          <span className="flex items-center justify-center gap-2">
-            {mode === 'ficha' ? '📋' : '🎓'} Generar {items.length} {label}{' '}
-            {outputMode === 'zip' ? '(ZIP)' : '(PDF)'}
-          </span>
-        )}
+        {buttonContent}
       </button>
 
       {items.length > RECOMMENDED_BATCH_SIZE && items.length <= MAX_BATCH_SIZE && (
@@ -252,14 +247,13 @@ export default function GenerateButton(props: GenerateButtonProps) {
       )}
 
       {/* Hidden render container */}
-      <div ref={renderContainerRef} className="diploma-render-container">
-        {mode === 'diploma'
-          ? (items as DiplomaData[]).map((diploma, index) => (
-              <DiplomaTemplate key={index} data={diploma} />
-            ))
-          : (items as FichaData[]).map((ficha, index) => (
-              <FichaPracticasTemplate key={index} data={ficha} />
-            ))}
+      <div ref={renderContainerRef} className="pdf-render-container">
+        {items.map((ficha) => (
+          <FichaPracticasTemplate
+            key={`${ficha.practicante.dni ?? 'sin-dni'}-${ficha.practicante._sheet ?? 'sheet'}-${ficha.practicante._rowIndex ?? 0}`}
+            data={ficha}
+          />
+        ))}
       </div>
     </div>
   );

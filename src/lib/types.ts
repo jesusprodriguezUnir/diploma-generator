@@ -1,9 +1,6 @@
 // ============================================================
-// Tipos compartidos para el Generador de Diplomas Multiescuela
+// Tipos compartidos para el Generador de Fichas de Prácticas
 // ============================================================
-
-/** Modo de la aplicación */
-export type AppMode = 'diploma' | 'ficha';
 
 /** Estilos visuales configurables por escuela */
 export interface SchoolStyles {
@@ -14,25 +11,15 @@ export interface SchoolStyles {
   fuenteCuerpo: string;
 }
 
-/** Textos fijos del diploma */
-export interface FixedTexts {
-  director: string;
-  titulo: string;
-  subtitulo: string;
-  fecha: string;
-  ciudad: string;
-  [key: string]: string;
-}
-
-/** Configuración completa de una escuela (modo diploma) */
-export interface SchoolConfig {
+/** Configuración de escuela para modo Ficha de Prácticas */
+export interface FichaSchoolConfig {
   id: string;
   nombre: string;
   logo: string;
-  modo?: AppMode;
+  modo: 'ficha';
   estilos: SchoolStyles;
   mapeoColumnas: Record<string, string>;
-  textosFijos: FixedTexts;
+  valoresFijos: FichaValoresFijos;
 }
 
 /** Valores fijos para rellenar campos que no están en el Excel */
@@ -44,14 +31,8 @@ export interface FichaValoresFijos {
   ciudad: string;
   calificacion_default: string;
   tipo_actividad_default: string;
-  [key: string]: string;
-}
-
-/** Configuración de escuela para modo Ficha de Prácticas */
-export interface FichaSchoolConfig extends Omit<SchoolConfig, 'textosFijos' | 'modo'> {
-  modo: 'ficha';
-  valoresFijos: FichaValoresFijos;
-  textosFijos?: FixedTexts;
+  firma_escuela?: string;
+  [key: string]: string | undefined;
 }
 
 /** Datos de un practicante mapeados desde el Excel */
@@ -96,20 +77,6 @@ export interface FichaData {
 
 /** Fila genérica de un Excel (clave-valor) */
 export type ExcelRow = Record<string, string | number | undefined>;
-
-/** Datos del alumno ya mapeados */
-export interface MappedStudent {
-  nombre_alumno: string;
-  nota?: string | number;
-  curso?: string;
-  [key: string]: string | number | undefined;
-}
-
-/** Datos completos para renderizar un diploma */
-export interface DiplomaData {
-  student: MappedStudent;
-  school: SchoolConfig;
-}
 
 /** Resultado de validación */
 export interface ValidationResult {

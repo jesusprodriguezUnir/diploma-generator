@@ -6,7 +6,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Diploma Generator — Agent Instructions
 
-Generador de diplomas PDF multiescuela. Next.js 16 (App Router) + React 19 + Tailwind CSS v4 + TypeScript. Ver [plan.md](../plan.md) para contexto completo del proyecto.
+Generador de fichas de prácticas PDF (modo único). Next.js 16 (App Router) + React 19 + Tailwind CSS v4 + TypeScript.
 
 ## Commands
 
@@ -14,6 +14,11 @@ Generador de diplomas PDF multiescuela. Next.js 16 (App Router) + React 19 + Tai
 npm run dev      # Dev server → http://localhost:3000
 npm run build    # Production build
 npm run lint     # ESLint (Next.js config)
+npm run test     # Alias de unitarias/integración
+npm run test:unit
+npm run test:watch
+npm run test:e2e
+npm run test:ci
 ```
 
 ## Architecture
@@ -21,31 +26,42 @@ npm run lint     # ESLint (Next.js config)
 ```
 src/
   app/           # Next.js App Router (layout + page only)
-  components/    # UI components (all client-side)
+  components/    # UI components + template de ficha
   lib/           # Core logic: excel-parser, mapping-engine, pdf-generator-client, types
-  configs/       # Per-school JSON configs (SchoolConfig shape)
-  mocks/         # Demo data (mock-data.ts + alumnos-demo.xlsx)
+  configs/       # Config de escuela (FichaSchoolConfig)
+  mocks/         # Demo data de fichas
+tests/
+  unit/          # Vitest unit
+  integration/   # Vitest + Testing Library
+  e2e/           # Playwright
 ```
 
 ## Key Conventions
 
-- **PDF generation is client-only** (`pdf-generator-client.ts`). Uses `html2pdf.js` via dynamic `import()` — never import at the top level; Vercel serverless has no DOM.
-- **DiplomaTemplate** uses `forwardRef` so the PDF generator can access the DOM node. Always keep `ref` forwarded on the root `<div>`.
-- **School configs** live in `src/configs/*.json` and must conform to `SchoolConfig` (defined in [src/lib/types.ts](src/lib/types.ts)). The `mapeoColumnas` field maps Excel column headers → internal keys (`nombre_alumno`, `nota`, `curso`, …).
-- **Diploma format**: A4 landscape, 297 × 210 mm, inline styles (not Tailwind classes) inside `DiplomaTemplate` so html2pdf.js captures them correctly.
+- **PDF generation is client-only** (`pdf-generator-client.ts`). Uses `html2pdf.js` via dynamic `import()` — never import at top-level.
+- **FichaPracticasTemplate** uses `forwardRef` so the generator can access the DOM node.
+- **School config** is currently `src/configs/escuela-recuerdo.json` and must conform to `FichaSchoolConfig`.
+- **Ficha format**: A4 portrait (`210mm` de ancho) con estilos inline dentro de `FichaPracticasTemplate` para compatibilidad con html2pdf.js.
 - **All shared types** are in `src/lib/types.ts` — add new types there, never inline them in components.
-- Tailwind v4 is used for the app shell UI only, **not** inside `DiplomaTemplate`.
+- Tailwind v4 is used for the app shell UI only, not for los estilos internos de impresión.
 
-## Adding a New School
+## Testing Conventions
 
-1. Create `src/configs/<id>.json` following the `SchoolConfig` interface.
-2. Add the logo to `public/logos/<id>.png`.
-3. Register the school in the `SchoolSelector` component.
-4. (Optional) add mock students to `src/mocks/mock-data.ts`.
+- Unit tests for lógica pura en `tests/unit/lib`.
+- Integration tests for UI behavior en `tests/integration/components`.
+- E2E smoke/flows en `tests/e2e` con Playwright.
+- Prefer assertions robustas (roles, labels, ids) sobre textos ambiguos.
+
+## Demo Signature Assets
+
+- PNG: `public/logos/firma-recuerdo-demo.png`
+- SVG: `public/logos/firma-recuerdo-demo.svg`
+- Config activa: `valoresFijos.firma_escuela` en `src/configs/escuela-recuerdo.json`.
 
 ## Common Pitfalls
 
 - `html2pdf.js` must be dynamically imported inside async functions — it crashes on the server.
 - Excel column names in `mapeoColumnas` are case- and space-sensitive (they must match the `.xlsx` header row exactly).
-- `DiplomaTemplate` width/height are in `mm` units (`297mm`/`210mm`) — do not change to `px` or the PDF will crop.
+- `FichaPracticasTemplate` debe mantener medidas en `mm`; no cambiar a `px` para evitar recortes en PDF.
+- En E2E, evita asserts por texto corto tipo "DEMO"; puede generar colisiones de selector.
 

@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Manrope, Sora } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const sora = Sora({
+  variable: "--font-sora",
   subsets: ["latin"],
   display: "swap",
 });
@@ -12,14 +18,14 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
-  title: "Generador de Diplomas | Multiescuela",
+  title: "Generador de Fichas de Practicas | Multiescuela",
   description:
-    "Genera diplomas personalizados automáticamente para múltiples escuelas. Sube un Excel con los datos de tus alumnos y descarga los diplomas en PDF.",
-  keywords: ["diplomas", "generador", "escuela", "PDF", "certificados", "educación"],
-  authors: [{ name: "Diploma Generator" }],
+    "Genera fichas de practicas automaticamente para multiples escuelas. Sube un Excel con los datos y descarga los PDF.",
+  keywords: ["fichas", "practicas", "generador", "escuela", "PDF", "educacion"],
+  authors: [{ name: "Ficha Generator" }],
   openGraph: {
-    title: "Generador de Diplomas Multiescuela",
-    description: "Genera diplomas PDF personalizados por escuela de forma automática",
+    title: "Generador de Fichas de Practicas Multiescuela",
+    description: "Genera fichas PDF personalizadas por escuela de forma automatica",
     type: "website",
   },
 };
@@ -30,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} h-full antialiased`}>
+    <html lang="es" className={`${manrope.variable} ${sora.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-gradient-animated">
         {children}
       </body>

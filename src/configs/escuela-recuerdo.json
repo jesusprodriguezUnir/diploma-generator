@@ -45,6 +45,7 @@
     "director": "Rubén García Sánchez",
     "ciudad": "Madrid",
     "calificacion_default": "APTO",
-    "tipo_actividad_default": "Campamento con pernocta"
+    "tipo_actividad_default": "Campamento con pernocta",
+    "firma_escuela": "/logos/firma-recuerdo-demo.png"
   }
 }
