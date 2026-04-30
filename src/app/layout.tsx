@@ -8,7 +8,10 @@ const inter = Inter({
   display: "swap",
 });
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl),
   title: "Generador de Diplomas | Multiescuela",
   description:
     "Genera diplomas personalizados automáticamente para múltiples escuelas. Sube un Excel con los datos de tus alumnos y descarga los diplomas en PDF.",

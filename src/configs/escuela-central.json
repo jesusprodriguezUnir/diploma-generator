@@ -1,7 +1,7 @@
 {
   "id": "escuela-central",
   "nombre": "Instituto Central de Educación",
-  "logo": "/logos/escuela-central.png",
+  "logo": "/logos/escuela-central.svg",
   "estilos": {
     "colorPrimario": "#1E3A5F",
     "colorSecundario": "#C9A84C",

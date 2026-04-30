@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import Image from 'next/image';
 import type { DiplomaData } from '@/lib/types';
 
 interface DiplomaTemplateProps {
@@ -89,22 +90,33 @@ const DiplomaTemplate = forwardRef<HTMLDivElement, DiplomaTemplateProps>(
             gap: '4mm',
           }}
         >
-          {/* School logo placeholder */}
+          {/* School logo */}
           <div
             style={{
               width: '22mm',
               height: '22mm',
               borderRadius: '50%',
-              background: `linear-gradient(135deg, ${estilos.colorPrimario}, ${estilos.colorSecundario})`,
+              overflow: 'hidden',
+              boxShadow: `0 4px 15px ${estilos.colorPrimario}40`,
+              border: `1px solid ${estilos.colorSecundario}55`,
+              background: `${estilos.colorFondo || '#FFFDF7'}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '10mm',
-              color: 'white',
-              boxShadow: `0 4px 15px ${estilos.colorPrimario}40`,
             }}
           >
-            🎓
+            <Image
+              src={school.logo}
+              alt={`Logo de ${school.nombre}`}
+              width={88}
+              height={88}
+              unoptimized
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+            />
           </div>
 
           {/* School name */}

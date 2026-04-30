@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Generador de Diplomas Multiescuela
 
-## Getting Started
+Aplicacion web para generar diplomas personalizados desde un archivo Excel.
+Construida con Next.js 16, React 19, TypeScript y Tailwind CSS v4.
 
-First, run the development server:
+## Requisitos
+
+- Node.js 20+
+- npm 10+
+
+## Desarrollo local
+
+```bash
+npm install
+npm run dev
+```
+
+Abre http://localhost:3000.
+
+## Comandos utiles
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run lint
+npm run build
+npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Flujo funcional
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Selecciona una escuela.
+2. Sube un archivo Excel (.xlsx) o usa modo demo.
+3. El sistema valida encabezados segun la configuracion de escuela.
+4. Genera salida en PDF unico o ZIP con PDFs individuales.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Limites operativos recomendados
 
-## Learn More
+- Recomendado: hasta 10 diplomas por lote para mantener fluidez.
+- Maximo admitido en la UI: 25 diplomas por lote.
+- Para volumen mayor: divide en bloques.
 
-To learn more about Next.js, take a look at the following resources:
+## Configuracion de escuelas
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Archivos: src/configs/*.json
+- Logos: public/logos/*.svg
+- El campo logo debe apuntar a ruta publica valida (ejemplo: /logos/escuela-central.svg).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Variables de entorno
 
-## Deploy on Vercel
+Crear archivo .env.local:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+En Vercel, define NEXT_PUBLIC_APP_URL con la URL de produccion
+(por ejemplo https://diplomas.tudominio.com).
+
+## Despliegue en Vercel
+
+1. Sube el repositorio a GitHub.
+2. En Vercel, importa el proyecto y selecciona la carpeta raiz diploma-generator.
+3. Configura:
+	- Build Command: npm run build
+	- Install Command: npm install
+	- Output: .next (automatico en Next.js)
+4. Define variable de entorno:
+	- NEXT_PUBLIC_APP_URL=https://tu-dominio-o-url-vercel
+5. Ejecuta deploy de Preview y valida flujos.
+6. Asigna dominio personalizado y publica a Production.
+
+## Checklist de salida
+
+- Lint sin errores: npm run lint
+- Build exitoso: npm run build
+- Pruebas funcionales:
+  - PDF unico (1 diploma)
+  - PDF unico (10 diplomas)
+  - ZIP (10 diplomas)
+  - Excel con columnas faltantes (error esperado)
+- Verificacion en movil y desktop
+- HTTPS activo en dominio final

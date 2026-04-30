@@ -11,6 +11,9 @@ interface GenerateButtonProps {
 
 type OutputMode = 'single' | 'zip';
 
+const RECOMMENDED_BATCH_SIZE = 10;
+const MAX_BATCH_SIZE = 25;
+
 export default function GenerateButton({
   diplomas,
   disabled = false,
@@ -26,6 +29,15 @@ export default function GenerateButton({
 
   const handleGenerate = useCallback(async () => {
     if (diplomas.length === 0) return;
+    if (diplomas.length > MAX_BATCH_SIZE) {
+      setProgress({
+        status: 'error',
+        current: 0,
+        total: diplomas.length,
+        message: `Lote demasiado grande (${diplomas.length}). Divide el archivo en grupos de hasta ${MAX_BATCH_SIZE} diplomas.`,
+      });
+      return;
+    }
 
     setProgress({
       status: 'processing',
@@ -163,6 +175,20 @@ export default function GenerateButton({
           </span>
         )}
       </button>
+
+      {diplomas.length > RECOMMENDED_BATCH_SIZE && diplomas.length <= MAX_BATCH_SIZE && (
+        <div
+          className="p-3 rounded-lg text-xs"
+          style={{
+            background: 'rgba(251, 191, 36, 0.1)',
+            border: '1px solid rgba(251, 191, 36, 0.25)',
+            color: 'var(--warning)',
+          }}
+        >
+          Este lote tiene {diplomas.length} diplomas. Para mejor rendimiento en navegador,
+          recomendamos generar en bloques de hasta {RECOMMENDED_BATCH_SIZE}.
+        </div>
+      )}
 
       {/* Progress bar */}
       {progress.status === 'processing' && (

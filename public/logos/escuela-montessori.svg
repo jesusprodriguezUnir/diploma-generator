@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Colegio Montessori Internacional</title>
+  <desc id="desc">Emblema con arbol y libro abierto</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#2D6A4F"/>
+      <stop offset="100%" stop-color="#D4A373"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="256" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="12"/>
+  <path d="M256 122c-42 34-66 76-66 118 0 42 24 82 66 112 42-30 66-70 66-112 0-42-24-84-66-118z" fill="#FFFFFF" fill-opacity="0.92"/>
+  <path d="M256 166v178" stroke="#2D6A4F" stroke-width="12" stroke-linecap="round"/>
+  <path d="M174 332c30-18 52-24 82-24s52 6 82 24" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
+  <path d="M158 386c34-20 64-28 98-28s64 8 98 28" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+</svg>

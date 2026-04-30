@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import type { SchoolConfig, ExcelRow, DiplomaData } from '@/lib/types';
 import { schoolConfigs, getMockExcelData } from '@/mocks/mock-data';
 import { validateExcelHeaders, getPreviewRows } from '@/lib/excel-parser';
@@ -94,13 +94,6 @@ export default function HomePage() {
     },
     [selectedSchool, processData]
   );
-
-  // Reprocess when selectedSchool changes with existing data
-  useEffect(() => {
-    if (selectedSchool && excelRows.length > 0 && !isDemo) {
-      processData(excelRows, selectedSchool);
-    }
-  }, [selectedSchool, excelRows, isDemo, processData]);
 
   return (
     <main className="flex-1 flex flex-col">

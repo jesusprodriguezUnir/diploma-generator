@@ -1,7 +1,7 @@
 {
   "id": "escuela-montessori",
   "nombre": "Colegio Montessori Internacional",
-  "logo": "/logos/escuela-montessori.png",
+  "logo": "/logos/escuela-montessori.svg",
   "estilos": {
     "colorPrimario": "#2D6A4F",
     "colorSecundario": "#D4A373",
