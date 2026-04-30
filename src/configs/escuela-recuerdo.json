@@ -1,0 +1,50 @@
+{
+  "id": "escuela-recuerdo",
+  "modo": "ficha",
+  "nombre": "Escuela Nuestra Señora del Recuerdo",
+  "logo": "/logos/escuela-recuerdo.png",
+  "estilos": {
+    "colorPrimario": "#1A2E5C",
+    "colorSecundario": "#8B6F2A",
+    "fuenteTitulo": "Arial",
+    "fuenteCuerpo": "Arial"
+  },
+  "mapeoColumnas": {
+    "PRIMER APELLIDO": "apellido1",
+    "SEGUNDO APELLIDO": "apellido2",
+    "NOMBRE": "nombre",
+    "CÓDIGO CURSO": "codigo_curso",
+    "FECHAS": "fechas_curso",
+    "F.NACIMIENTO": "fecha_nacimiento",
+    "D.N.I.": "dni",
+    "GÉNERO": "genero",
+    "CORREO ELECTRÓNICO": "email",
+    "TELÉFONO": "telefono",
+    "TITULACIÓN ACADÉMICA": "titulacion",
+    "LUGAR DE PRÁCTICAS": "lugar_practicas",
+    "Nº participantes": "n_participantes",
+    "Su grupo": "su_grupo",
+    "Fecha Inicio": "fecha_inicio",
+    "Fecha Final": "fecha_final",
+    "Edad participantes": "edad_participantes",
+    "Características campamento": "caracteristicas",
+    "Entidad de prácticas": "entidad",
+    "Persona de contacto en la entidad": "persona_contacto",
+    "Nº de monitores/as y coordinadores/as titulados/as ": "n_monitores_titulados",
+    "Nº de monitores/as y coordinadores/as en prácticas:": "n_monitores_practicas",
+    "COORDINADOR/COORDINADORA DE PRÁCTICAS ": "coordinador_practicas",
+    "COORDINADOR/COORDINADORA DE PRÁCTICAS DE LA ESCUELA": "coordinador_escuela",
+    "Título Memoria": "titulo_memoria",
+    "Fecha de entrega en la Escuela": "fecha_entrega_memoria",
+    "Fecha Firma": "fecha_firma"
+  },
+  "valoresFijos": {
+    "nombre_curso": "MTL ETL Recuerdo",
+    "direccion_escuela": "Pza. Duque del Infantado 5, 28036 Madrid",
+    "telefono_escuela": "913022640",
+    "director": "Rubén García Sánchez",
+    "ciudad": "Madrid",
+    "calificacion_default": "APTO",
+    "tipo_actividad_default": "Campamento con pernocta"
+  }
+}

@@ -1,16 +1,30 @@
-import type { ExcelRow, SchoolConfig } from '@/lib/types';
+import type { AppMode, ExcelRow, FichaSchoolConfig, SchoolConfig } from '@/lib/types';
 import escuelaCentral from '@/configs/escuela-central.json';
 import escuelaMontessori from '@/configs/escuela-montessori.json';
+import escuelaRecuerdo from '@/configs/escuela-recuerdo.json';
+
+/** Lista de escuelas para modo diploma */
+export const diplomaSchoolConfigs: SchoolConfig[] = [
+  escuelaCentral as SchoolConfig,
+  escuelaMontessori as SchoolConfig,
+];
+
+/** Lista de escuelas para modo ficha */
+export const fichaSchoolConfigs: FichaSchoolConfig[] = [
+  escuelaRecuerdo as FichaSchoolConfig,
+];
+
+/** Devuelve las escuelas configuradas según el modo activo */
+export function getSchoolsByMode(mode: AppMode): SchoolConfig[] | FichaSchoolConfig[] {
+  return mode === 'ficha' ? fichaSchoolConfigs : diplomaSchoolConfigs;
+}
 
 // ============================================================
 // Datos mock para modo demo
 // ============================================================
 
-/** Lista de todas las escuelas configuradas */
-export const schoolConfigs: SchoolConfig[] = [
-  escuelaCentral as SchoolConfig,
-  escuelaMontessori as SchoolConfig,
-];
+/** Lista de todas las escuelas configuradas (legacy — modo diploma) */
+export const schoolConfigs: SchoolConfig[] = diplomaSchoolConfigs;
 
 /** Datos mock del Excel para Instituto Central */
 export const mockDataCentral: ExcelRow[] = [

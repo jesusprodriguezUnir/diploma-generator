@@ -1,7 +1,7 @@
 import type { GenerationProgress } from './types';
 
 // Opciones compartidas de html2pdf.js con tipos literales
-function getHtml2PdfOptions() {
+function getHtml2PdfOptions(orientation: 'portrait' | 'landscape' = 'landscape') {
   return {
     margin: 0,
     image: { type: 'jpeg' as const, quality: 0.98 },
@@ -14,8 +14,9 @@ function getHtml2PdfOptions() {
     jsPDF: {
       unit: 'mm' as const,
       format: 'a4',
-      orientation: 'landscape' as const,
+      orientation: orientation as 'portrait' | 'landscape',
     },
+    pagebreak: { mode: ['css', 'legacy'] as string[] },
   };
 }
 
@@ -23,10 +24,13 @@ function getHtml2PdfOptions() {
  * Genera un PDF a partir de un elemento HTML usando html2pdf.js.
  * Se ejecuta en el cliente (browser).
  */
-export async function generateSinglePDF(element: HTMLElement): Promise<Blob> {
+export async function generateSinglePDF(
+  element: HTMLElement,
+  orientation: 'portrait' | 'landscape' = 'landscape'
+): Promise<Blob> {
   const html2pdf = (await import('html2pdf.js')).default;
 
-  const opt = { ...getHtml2PdfOptions(), filename: 'diploma.pdf' };
+  const opt = { ...getHtml2PdfOptions(orientation), filename: 'diploma.pdf' };
 
   const blob: Blob = await html2pdf()
     .set(opt)
@@ -37,12 +41,13 @@ export async function generateSinglePDF(element: HTMLElement): Promise<Blob> {
 }
 
 /**
- * Genera un solo PDF con todos los diplomas, un diploma por página.
- * Acepta un array de elementos HTML (uno por diploma).
+ * Genera un solo PDF con todos los diplomas/fichas, uno por página.
+ * Acepta un array de elementos HTML (uno por item).
  */
 export async function generateAllPDFs(
   elements: HTMLElement[],
-  onProgress?: (progress: GenerationProgress) => void
+  onProgress?: (progress: GenerationProgress) => void,
+  orientation: 'portrait' | 'landscape' = 'landscape'
 ): Promise<Blob> {
   const html2pdf = (await import('html2pdf.js')).default;
 
@@ -52,10 +57,10 @@ export async function generateAllPDFs(
     status: 'processing',
     current: 0,
     total,
-    message: 'Iniciando generación de diplomas...',
+    message: 'Iniciando generación...',
   });
 
-  const opt = getHtml2PdfOptions();
+  const opt = getHtml2PdfOptions(orientation);
 
   // Crear un contenedor temporal con todos los diplomas separados por saltos de página
   const container = document.createElement('div');
@@ -100,12 +105,13 @@ export async function generateAllPDFs(
 }
 
 /**
- * Genera un ZIP con un PDF individual por cada diploma.
+ * Genera un ZIP con un PDF individual por cada diploma/ficha.
  */
 export async function generateZipPDFs(
   elements: HTMLElement[],
   studentNames: string[],
-  onProgress?: (progress: GenerationProgress) => void
+  onProgress?: (progress: GenerationProgress) => void,
+  orientation: 'portrait' | 'landscape' = 'landscape'
 ): Promise<Blob> {
   const html2pdf = (await import('html2pdf.js')).default;
   const JSZip = (await import('jszip')).default;
@@ -113,7 +119,7 @@ export async function generateZipPDFs(
   const zip = new JSZip();
   const total = elements.length;
 
-  const opt = getHtml2PdfOptions();
+  const opt = getHtml2PdfOptions(orientation);
 
   for (let i = 0; i < elements.length; i++) {
     onProgress?.({

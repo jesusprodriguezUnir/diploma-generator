@@ -1,23 +1,31 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import type { DiplomaData, GenerationProgress } from '@/lib/types';
+import type { DiplomaData, FichaData, GenerationProgress } from '@/lib/types';
 import DiplomaTemplate from './DiplomaTemplate';
+import FichaPracticasTemplate from './FichaPracticasTemplate';
 
-interface GenerateButtonProps {
-  diplomas: DiplomaData[];
+type OutputMode = 'single' | 'zip';
+
+interface GenerateButtonDiplomaProps {
+  mode: 'diploma';
+  items: DiplomaData[];
   disabled?: boolean;
 }
 
-type OutputMode = 'single' | 'zip';
+interface GenerateButtonFichaProps {
+  mode: 'ficha';
+  items: FichaData[];
+  disabled?: boolean;
+}
+
+type GenerateButtonProps = GenerateButtonDiplomaProps | GenerateButtonFichaProps;
 
 const RECOMMENDED_BATCH_SIZE = 10;
 const MAX_BATCH_SIZE = 25;
 
-export default function GenerateButton({
-  diplomas,
-  disabled = false,
-}: GenerateButtonProps) {
+export default function GenerateButton(props: GenerateButtonProps) {
+  const { mode, items, disabled = false } = props;
   const [progress, setProgress] = useState<GenerationProgress>({
     status: 'idle',
     current: 0,
@@ -27,14 +35,34 @@ export default function GenerateButton({
   const [outputMode, setOutputMode] = useState<OutputMode>('single');
   const renderContainerRef = useRef<HTMLDivElement>(null);
 
+  const orientation = mode === 'ficha' ? 'portrait' : 'landscape';
+  const pageSelector = mode === 'ficha' ? '.ficha-page' : '.diploma-page';
+  const label = mode === 'ficha' ? 'fichas' : 'diplomas';
+
+  const getItemName = (item: DiplomaData | FichaData): string => {
+    if (mode === 'ficha') {
+      const p = (item as FichaData).practicante;
+      return [p.apellido1, p.apellido2, p.nombre]
+        .filter(Boolean)
+        .join('_');
+    }
+    return String((item as DiplomaData).student.nombre_alumno ?? `item`);
+  };
+
+  const getSchoolId = (): string => {
+    if (items.length === 0) return 'output';
+    if (mode === 'ficha') return (items[0] as FichaData).school.id;
+    return (items[0] as DiplomaData).school.id;
+  };
+
   const handleGenerate = useCallback(async () => {
-    if (diplomas.length === 0) return;
-    if (diplomas.length > MAX_BATCH_SIZE) {
+    if (items.length === 0) return;
+    if (items.length > MAX_BATCH_SIZE) {
       setProgress({
         status: 'error',
         current: 0,
-        total: diplomas.length,
-        message: `Lote demasiado grande (${diplomas.length}). Divide el archivo en grupos de hasta ${MAX_BATCH_SIZE} diplomas.`,
+        total: items.length,
+        message: `Lote demasiado grande (${items.length}). Divide en grupos de hasta ${MAX_BATCH_SIZE}.`,
       });
       return;
     }
@@ -42,21 +70,21 @@ export default function GenerateButton({
     setProgress({
       status: 'processing',
       current: 0,
-      total: diplomas.length,
-      message: 'Preparando diplomas para renderizado...',
+      total: items.length,
+      message: `Preparando ${label} para renderizado...`,
     });
 
     try {
-      // Wait for next frame to ensure render container is populated
       await new Promise((r) => setTimeout(r, 500));
 
       const container = renderContainerRef.current;
       if (!container) throw new Error('No se encontró el contenedor de renderizado');
 
-      const diplomaElements = container.querySelectorAll<HTMLElement>('.diploma-page');
-      if (diplomaElements.length === 0) throw new Error('No se encontraron diplomas renderizados');
-
-      const elements = Array.from(diplomaElements);
+      const elements = Array.from(
+        container.querySelectorAll<HTMLElement>(pageSelector)
+      );
+      if (elements.length === 0)
+        throw new Error(`No se encontraron ${label} renderizados`);
 
       const {
         generateAllPDFs,
@@ -64,24 +92,27 @@ export default function GenerateButton({
         downloadBlob,
       } = await import('@/lib/pdf-generator-client');
 
+      const schoolId = getSchoolId();
+
       if (outputMode === 'zip') {
-        const studentNames = diplomas.map((d) => String(d.student.nombre_alumno));
-        const blob = await generateZipPDFs(elements, studentNames, setProgress);
-        downloadBlob(blob, `diplomas-${diplomas[0].school.id}.zip`);
+        const names = items.map(getItemName);
+        const blob = await generateZipPDFs(elements, names, setProgress, orientation);
+        downloadBlob(blob, `${label}-${schoolId}.zip`);
       } else {
-        const blob = await generateAllPDFs(elements, setProgress);
-        downloadBlob(blob, `diplomas-${diplomas[0].school.id}.pdf`);
+        const blob = await generateAllPDFs(elements, setProgress, orientation);
+        downloadBlob(blob, `${label}-${schoolId}.pdf`);
       }
     } catch (err) {
       setProgress({
         status: 'error',
         current: 0,
-        total: diplomas.length,
+        total: items.length,
         message:
           err instanceof Error ? err.message : 'Error desconocido al generar PDFs',
       });
     }
-  }, [diplomas, outputMode]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, outputMode, mode, orientation, pageSelector, label]);
 
   const progressPercent =
     progress.total > 0
@@ -105,12 +136,8 @@ export default function GenerateButton({
           <button
             className="px-3 py-1.5 text-xs font-medium transition-colors"
             style={{
-              background:
-                outputMode === 'single'
-                  ? 'var(--accent)'
-                  : 'transparent',
-              color:
-                outputMode === 'single' ? 'white' : 'var(--text-secondary)',
+              background: outputMode === 'single' ? 'var(--accent)' : 'transparent',
+              color: outputMode === 'single' ? 'white' : 'var(--text-secondary)',
             }}
             onClick={() => setOutputMode('single')}
           >
@@ -119,12 +146,8 @@ export default function GenerateButton({
           <button
             className="px-3 py-1.5 text-xs font-medium transition-colors"
             style={{
-              background:
-                outputMode === 'zip'
-                  ? 'var(--accent)'
-                  : 'transparent',
-              color:
-                outputMode === 'zip' ? 'white' : 'var(--text-secondary)',
+              background: outputMode === 'zip' ? 'var(--accent)' : 'transparent',
+              color: outputMode === 'zip' ? 'white' : 'var(--text-secondary)',
               borderLeft: '1px solid var(--card-border)',
             }}
             onClick={() => setOutputMode('zip')}
@@ -139,28 +162,13 @@ export default function GenerateButton({
         id="generate-pdf-button"
         className="btn-glow w-full text-base py-3.5"
         onClick={handleGenerate}
-        disabled={disabled || diplomas.length === 0 || progress.status === 'processing'}
+        disabled={disabled || items.length === 0 || progress.status === 'processing'}
       >
         {progress.status === 'processing' ? (
           <span className="flex items-center justify-center gap-2">
-            <svg
-              className="animate-spin h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              />
+            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
             Generando...
           </span>
@@ -170,13 +178,13 @@ export default function GenerateButton({
           </span>
         ) : (
           <span className="flex items-center justify-center gap-2">
-            🎓 Generar {diplomas.length} diploma{diplomas.length !== 1 ? 's' : ''}{' '}
+            {mode === 'ficha' ? '📋' : '🎓'} Generar {items.length} {label}{' '}
             {outputMode === 'zip' ? '(ZIP)' : '(PDF)'}
           </span>
         )}
       </button>
 
-      {diplomas.length > RECOMMENDED_BATCH_SIZE && diplomas.length <= MAX_BATCH_SIZE && (
+      {items.length > RECOMMENDED_BATCH_SIZE && items.length <= MAX_BATCH_SIZE && (
         <div
           className="p-3 rounded-lg text-xs"
           style={{
@@ -185,7 +193,7 @@ export default function GenerateButton({
             color: 'var(--warning)',
           }}
         >
-          Este lote tiene {diplomas.length} diplomas. Para mejor rendimiento en navegador,
+          Este lote tiene {items.length} {label}. Para mejor rendimiento,
           recomendamos generar en bloques de hasta {RECOMMENDED_BATCH_SIZE}.
         </div>
       )}
@@ -194,29 +202,20 @@ export default function GenerateButton({
       {progress.status === 'processing' && (
         <div className="space-y-2 animate-fade-in">
           <div className="progress-bar">
-            <div
-              className="progress-bar-fill"
-              style={{ width: `${progressPercent}%` }}
-            />
+            <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }} />
           </div>
           <div className="flex items-center justify-between">
-            <p
-              className="text-xs"
-              style={{ color: 'var(--text-muted)' }}
-            >
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
               {progress.message}
             </p>
-            <p
-              className="text-xs font-medium"
-              style={{ color: 'var(--accent)' }}
-            >
+            <p className="text-xs font-medium" style={{ color: 'var(--accent)' }}>
               {progressPercent}%
             </p>
           </div>
         </div>
       )}
 
-      {/* Error message */}
+      {/* Error */}
       {progress.status === 'error' && (
         <div
           className="flex items-center gap-2 p-3 rounded-lg text-sm animate-scale-in"
@@ -231,7 +230,7 @@ export default function GenerateButton({
         </div>
       )}
 
-      {/* Success message */}
+      {/* Success */}
       {progress.status === 'complete' && (
         <div
           className="flex items-center gap-2 p-3 rounded-lg text-sm animate-scale-in"
@@ -252,11 +251,15 @@ export default function GenerateButton({
         </div>
       )}
 
-      {/* Hidden render container for PDF generation */}
+      {/* Hidden render container */}
       <div ref={renderContainerRef} className="diploma-render-container">
-        {diplomas.map((diploma, index) => (
-          <DiplomaTemplate key={index} data={diploma} />
-        ))}
+        {mode === 'diploma'
+          ? (items as DiplomaData[]).map((diploma, index) => (
+              <DiplomaTemplate key={index} data={diploma} />
+            ))
+          : (items as FichaData[]).map((ficha, index) => (
+              <FichaPracticasTemplate key={index} data={ficha} />
+            ))}
       </div>
     </div>
   );
