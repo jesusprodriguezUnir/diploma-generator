@@ -1,26 +1,319 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0B0F1A;
+  --foreground: #E8ECF4;
+  --card-bg: rgba(17, 24, 45, 0.85);
+  --card-border: rgba(99, 130, 255, 0.12);
+  --accent: #6C8CFF;
+  --accent-glow: rgba(108, 140, 255, 0.25);
+  --accent-secondary: #A78BFA;
+  --success: #34D399;
+  --warning: #FBBF24;
+  --error: #F87171;
+  --surface-hover: rgba(108, 140, 255, 0.08);
+  --text-secondary: #8B95B0;
+  --text-muted: #5A6478;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: 'Inter', var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ============================================================
+   Glass Card Component
+   ============================================================ */
+.glass-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(99, 130, 255, 0.25);
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+/* ============================================================
+   Animated Background Gradient
+   ============================================================ */
+.bg-gradient-animated {
+  background: linear-gradient(
+    135deg,
+    #0B0F1A 0%,
+    #111830 25%,
+    #0F1628 50%,
+    #141E38 75%,
+    #0B0F1A 100%
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ============================================================
+   Entrance Animations
+   ============================================================ */
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out forwards;
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Stagger delays */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* ============================================================
+   Glow Button
+   ============================================================ */
+.btn-glow {
+  position: relative;
+  background: linear-gradient(135deg, #6C8CFF 0%, #A78BFA 100%);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  padding: 12px 28px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.btn-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, #6C8CFF 0%, #A78BFA 50%, #6C8CFF 100%);
+  border-radius: 14px;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  filter: blur(8px);
+}
+
+.btn-glow:hover::before {
+  opacity: 1;
+}
+
+.btn-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(108, 140, 255, 0.4);
+}
+
+.btn-glow:active {
+  transform: translateY(0);
+}
+
+.btn-glow:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-glow:disabled:hover::before {
+  opacity: 0;
+}
+
+/* ============================================================
+   Drag & Drop Zone
+   ============================================================ */
+.drop-zone {
+  border: 2px dashed rgba(108, 140, 255, 0.3);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  background: rgba(108, 140, 255, 0.03);
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(108, 140, 255, 0.08);
+  box-shadow: inset 0 0 30px rgba(108, 140, 255, 0.05);
+}
+
+.drop-zone.has-file {
+  border-color: var(--success);
+  background: rgba(52, 211, 153, 0.05);
+  border-style: solid;
+}
+
+/* ============================================================
+   Custom Select
+   ============================================================ */
+.custom-select {
+  appearance: none;
+  background: rgba(17, 24, 45, 0.9);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  color: var(--foreground);
+  padding: 12px 40px 12px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236C8CFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.custom-select:hover {
+  border-color: var(--accent);
+}
+
+.custom-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* ============================================================
+   Toggle Switch
+   ============================================================ */
+.toggle-track {
+  width: 48px;
+  height: 26px;
+  border-radius: 13px;
+  background: rgba(90, 100, 120, 0.4);
+  cursor: pointer;
+  transition: background 0.3s ease;
+  position: relative;
+}
+
+.toggle-track.active {
+  background: linear-gradient(135deg, #6C8CFF 0%, #A78BFA 100%);
+}
+
+.toggle-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-track.active .toggle-thumb {
+  transform: translateX(22px);
+}
+
+/* ============================================================
+   Progress Bar
+   ============================================================ */
+.progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(108, 140, 255, 0.15);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #6C8CFF 0%, #A78BFA 100%);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   Demo Badge
+   ============================================================ */
+.demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(108, 140, 255, 0.15), rgba(167, 139, 250, 0.15));
+  border: 1px solid rgba(108, 140, 255, 0.3);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(108, 140, 255, 0.2); }
+  50% { box-shadow: 0 0 16px rgba(108, 140, 255, 0.4); }
+}
+
+/* ============================================================
+   Scrollbar
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(108, 140, 255, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(108, 140, 255, 0.5);
+}
+
+/* ============================================================
+   Diploma Print Styles (for PDF generation hidden rendering)
+   ============================================================ */
+.diploma-render-container {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
 }
