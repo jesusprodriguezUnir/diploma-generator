@@ -91,7 +91,9 @@ export default function HomePage() {
     setIsFichaDemo(enabled);
     if (enabled) {
       setFichaFileName('datos-demo.xlsx');
-      processFichaData(mockFichaRows, activeConfig);
+      const mapped = mapExcelToPracticantes(mockFichaRows, activeConfig);
+      setPracticantes(mapped);
+      setFichaError(null);
     } else {
       setFichaFileName('');
       setPracticantes([]);

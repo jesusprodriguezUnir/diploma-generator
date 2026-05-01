@@ -136,7 +136,7 @@ export default function StudentSelector({
             <label
               key={`${p._sheet}-${p._rowIndex}`}
               aria-label={`Seleccionar ${nombreCompleto || 'alumno'}`}
-              className="flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors"
+              className="student-row flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors"
               onClick={() => onStudentClick?.(globalIdx)}
               style={{
                 background: isChecked ? 'rgba(108,140,255,0.08)' : 'var(--surface)',
