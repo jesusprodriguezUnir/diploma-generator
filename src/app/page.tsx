@@ -130,9 +130,31 @@ export default function HomePage() {
     effectivePreviewIdx = Array.from(selectedPracticantes).sort((a, b) => a - b)[0];
   }
 
-  const previewFicha: FichaData | null = effectivePreviewIdx !== null 
-    ? { practicante: editedPracticantes[effectivePreviewIdx], school: activeConfig }
-    : null;
+  const previewFichas: FichaData[] = useMemo(() => {
+    // Si hay seleccionados, mostramos todos los seleccionados
+    if (selectedPracticantes.size > 0) {
+      return Array.from(selectedPracticantes)
+        .sort((a, b) => a - b)
+        .map(idx => ({
+          practicante: {
+            ...practicantes[idx],
+            ...(editions[idx] || {})
+          },
+          school: activeConfig
+        }));
+    }
+    // Si no hay seleccionados pero hay uno clickeado (preview explicito)
+    if (previewFichaIndex !== null && practicantes[previewFichaIndex]) {
+      return [{
+        practicante: {
+          ...practicantes[previewFichaIndex],
+          ...(editions[previewFichaIndex] || {})
+        },
+        school: activeConfig
+      }];
+    }
+    return [];
+  }, [selectedPracticantes, practicantes, editions, activeConfig, previewFichaIndex]);
 
   const signatureSamples = [
     { label: 'Firma demo PNG', src: '/logos/firma-recuerdo-demo.png' },
@@ -246,9 +268,10 @@ export default function HomePage() {
 
           <div className="lg:col-span-3 space-y-6">
             {/* EDITOR DE CAMPOS */}
-            {effectivePreviewIdx !== null && (
+            {selectedPracticantes.size === 1 && effectivePreviewIdx !== null && (
               <div className="glass-card p-6 animate-slide-up">
                 <FieldEditor 
+                  key={`editor-${effectivePreviewIdx}`}
                   practicante={editedPracticantes[effectivePreviewIdx]}
                   onUpdate={(updates) => updateStudentEdition(effectivePreviewIdx!, updates)}
                   onReset={() => resetStudentEdition(effectivePreviewIdx!)}
@@ -260,21 +283,35 @@ export default function HomePage() {
             <div className="glass-card p-5 animate-slide-up delay-200 sticky top-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Vista previa</h2>
-                {previewFicha && (
+                {previewFichas.length > 0 && (
                   <span
                     className="text-xs px-3 py-1 rounded-full"
                     style={{ background: 'rgba(15, 118, 110, 0.1)', color: activeConfig.estilos.colorPrimario, border: `1px solid ${activeConfig.estilos.colorPrimario}33` }}
                   >
-                    {previewFicha.practicante.apellido1} {previewFicha.practicante.apellido2} {previewFicha.practicante.nombre}
+                    {previewFichas.length === 1 
+                      ? `${previewFichas[0].practicante.apellido1} ${previewFichas[0].practicante.nombre}`
+                      : `${previewFichas.length} alumnos en vista previa`}
                   </span>
                 )}
               </div>
 
-              {previewFicha ? (
-                <div className="overflow-auto rounded-xl p-4" style={{ background: 'linear-gradient(180deg, #edf3ff, #e5f6f4)', border: '1px solid var(--card-border)' }}>
-                  <div style={{ transform: 'scale(0.52)', transformOrigin: 'top center', width: '210mm', margin: '0 auto' }}>
-                    <FichaPracticasTemplate data={previewFicha} />
-                  </div>
+              {previewFichas.length > 0 ? (
+                <div className="overflow-auto rounded-xl p-4 space-y-8" style={{ background: 'linear-gradient(180deg, #edf3ff, #e5f6f4)', border: '1px solid var(--card-border)', maxHeight: '80vh' }}>
+                  {previewFichas.map((ficha, fIdx) => (
+                    <div key={`preview-container-${fIdx}`} className="relative">
+                      {previewFichas.length > 1 && (
+                        <div className="absolute -top-4 left-4 z-10 bg-white px-2 py-0.5 rounded shadow-sm border border-slate-200 text-[10px] font-bold text-slate-500">
+                          FICHA {fIdx + 1}
+                        </div>
+                      )}
+                      <div style={{ transform: 'scale(0.52)', transformOrigin: 'top center', width: '210mm', margin: '0 auto' }}>
+                        <FichaPracticasTemplate 
+                          key={`preview-${ficha.practicante.dni}-${activeConfig.id}`}
+                          data={ficha} 
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-16 text-center" style={{ color: 'var(--text-muted)' }}>

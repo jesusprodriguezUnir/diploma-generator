@@ -81,10 +81,14 @@ export default function FieldEditor({ practicante, onUpdate, onReset }: FieldEdi
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {section.fields.map((field) => (
                 <div key={field.key} className="space-y-1">
-                  <label className="text-[10px] font-medium text-muted">
+                  <label 
+                    htmlFor={`field-${field.key}`}
+                    className="text-[10px] font-medium text-muted"
+                  >
                     {field.label}
                   </label>
                   <input
+                    id={`field-${field.key}`}
                     type="text"
                     value={String(practicante[field.key] ?? '')}
                     onChange={(e) => handleChange(field.key, e.target.value)}

@@ -40,7 +40,18 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
   function FichaPracticasTemplate({ data, scale = 1 }, ref) {
     const { practicante: p, school } = data;
     const fijos = school.valoresFijos;
-    const [showSignature, setShowSignature] = useState(Boolean(fijos.firma_escuela));
+    const [signatureError, setSignatureError] = useState(false);
+    
+    // Reset signature error when the source changes
+    const signatureSrc = fijos.firma_escuela;
+    const [lastSignature, setLastSignature] = useState(signatureSrc);
+    if (signatureSrc !== lastSignature) {
+      setLastSignature(signatureSrc);
+      setSignatureError(false);
+    }
+
+    const showSignature = Boolean(signatureSrc) && !signatureError;
+
     const fechaGeneracion = new Date().toLocaleDateString('es-ES', {
       day: 'numeric',
       month: 'long',
@@ -311,7 +322,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
                   width={220}
                   height={60}
                   unoptimized
-                  onError={() => setShowSignature(false)}
+                  onError={() => setSignatureError(true)}
                   style={{
                     position: 'absolute',
                     left: '0',
