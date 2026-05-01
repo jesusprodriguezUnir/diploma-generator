@@ -30,17 +30,6 @@ const valueCell: React.CSSProperties = {
   minHeight: '6mm',
 };
 
-const sectionTitle: React.CSSProperties = {
-  fontFamily: 'Arial, sans-serif',
-  fontSize: '10pt',
-  fontWeight: 'bold',
-  background: '#1A2E5C',
-  color: '#fff',
-  padding: '1.5mm 3mm',
-  marginTop: '3mm',
-  marginBottom: '0',
-};
-
 const tableStyle: React.CSSProperties = {
   width: '100%',
   borderCollapse: 'collapse',
@@ -79,12 +68,23 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
       transformOrigin: 'top left',
     };
 
+    const sectionTitle: React.CSSProperties = {
+      fontFamily: 'Arial, sans-serif',
+      fontSize: '10pt',
+      fontWeight: 'bold',
+      background: school.estilos.colorPrimario,
+      color: '#fff',
+      padding: '1.5mm 3mm',
+      marginTop: '3mm',
+      marginBottom: '0',
+    };
+
     return (
       <div ref={ref} style={containerStyle} className="ficha-page">
 
         {/* ── CABECERA ── */}
         <div style={{ textAlign: 'center', marginBottom: '4mm' }}>
-          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: '13pt', fontWeight: 'bold', color: '#1A2E5C', letterSpacing: '0.05em' }}>
+          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: '13pt', fontWeight: 'bold', color: school.estilos.colorPrimario, letterSpacing: '0.05em' }}>
             FICHA INDIVIDUAL DE PRÁCTICAS
           </div>
           <div style={{ fontFamily: 'Arial, sans-serif', fontSize: '9pt', color: '#555' }}>

@@ -1,21 +1,27 @@
 'use client';
 
-import { useState, useCallback, type ReactNode } from 'react';
+import { useState, useCallback, useMemo, type ReactNode, useEffect } from 'react';
 import Image from 'next/image';
 import type {
   ExcelRow,
   FichaData,
   Practicante,
+  FichaSchoolConfig,
 } from '@/lib/types';
-import { mockFichaRows, fichaSchoolConfig } from '@/mocks/mock-fichas';
+import { mockFichaRows, fichaSchoolConfig as defaultSchoolConfig } from '@/mocks/mock-fichas';
 import { validateExcelHeaders, filterEmptyPracticantes } from '@/lib/excel-parser';
 import { mapExcelToPracticantes } from '@/lib/mapping-engine';
 import DemoModeToggle from '@/components/DemoModeToggle';
 import GenerateButton from '@/components/GenerateButton';
 import StudentSelector from '@/components/StudentSelector';
 import FichaPracticasTemplate from '@/components/FichaPracticasTemplate';
+import ConfigManager from '@/components/ConfigManager';
+import FieldEditor from '@/components/FieldEditor';
 
 export default function HomePage() {
+  // ─── Configuración activa ────────────────────────────────────────────────
+  const [activeConfig, setActiveConfig] = useState<FichaSchoolConfig>(defaultSchoolConfig);
+
   // ─── Estado modo ficha ────────────────────────────────────────────────────
   const [isFichaDemo, setIsFichaDemo] = useState(false);
   const [fichaFileName, setFichaFileName] = useState<string>('');
@@ -24,13 +30,47 @@ export default function HomePage() {
   const [fichaError, setFichaError] = useState<string | null>(null);
   const [previewFichaIndex, setPreviewFichaIndex] = useState<number | null>(null);
 
-  const selectedFichas: FichaData[] = Array.from(selectedPracticantes)
-    .sort((a, b) => a - b)
-    .map((idx) => ({ practicante: practicantes[idx], school: fichaSchoolConfig }));
+  // ─── Ediciones ───────────────────────────────────────────────────────────
+  const [editions, setEditions] = useState<Record<number, Partial<Practicante>>>({});
+
+  // Cargar configuración guardada si existe
+  useEffect(() => {
+    const saved = localStorage.getItem('last_school_config');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setActiveConfig(parsed);
+      } catch (e) {
+        console.error('Error cargando config de localStorage', e);
+      }
+    }
+  }, []);
+
+  const handleConfigChange = useCallback((newConfig: FichaSchoolConfig) => {
+    setActiveConfig(newConfig);
+    localStorage.setItem('last_school_config', JSON.stringify(newConfig));
+  }, []);
+
+  // Practicantes con sus ediciones aplicadas
+  const editedPracticantes = useMemo(() => {
+    return practicantes.map((p, idx) => ({
+      ...p,
+      ...(editions[idx] || {})
+    }));
+  }, [practicantes, editions]);
+
+  const selectedFichas: FichaData[] = useMemo(() => {
+    return Array.from(selectedPracticantes)
+      .sort((a, b) => a - b)
+      .map((idx) => ({ 
+        practicante: editedPracticantes[idx], 
+        school: activeConfig 
+      }));
+  }, [selectedPracticantes, editedPracticantes, activeConfig]);
 
   // ─── Lógica modo ficha ────────────────────────────────────────────────────
-  const processFichaData = useCallback((rows: ExcelRow[]) => {
-    const validation = validateExcelHeaders(rows, fichaSchoolConfig);
+  const processFichaData = useCallback((rows: ExcelRow[], config: FichaSchoolConfig) => {
+    const validation = validateExcelHeaders(rows, config);
     if (!validation.isValid) {
       setFichaError(
         `Columnas esenciales no encontradas: ${validation.missingColumns.slice(0, 5).join(', ')}…`
@@ -40,9 +80,10 @@ export default function HomePage() {
     }
     setFichaError(null);
     const clean = filterEmptyPracticantes(rows);
-    const mapped = mapExcelToPracticantes(clean, fichaSchoolConfig);
+    const mapped = mapExcelToPracticantes(clean, config);
     setPracticantes(mapped);
     setSelectedPracticantes(new Set());
+    setEditions({}); // Limpiar ediciones al cargar nuevo archivo
     setPreviewFichaIndex(null);
   }, []);
 
@@ -50,28 +91,48 @@ export default function HomePage() {
     setIsFichaDemo(enabled);
     if (enabled) {
       setFichaFileName('datos-demo.xlsx');
-      processFichaData(mockFichaRows);
+      processFichaData(mockFichaRows, activeConfig);
     } else {
       setFichaFileName('');
       setPracticantes([]);
       setSelectedPracticantes(new Set());
+      setEditions({});
       setFichaError(null);
       setPreviewFichaIndex(null);
     }
-  }, [processFichaData]);
+  }, [processFichaData, activeConfig]);
 
   const handleFichaFileLoaded = useCallback(async (rows: ExcelRow[], file: File) => {
     setFichaFileName(file.name);
-    processFichaData(rows);
-  }, [processFichaData]);
+    processFichaData(rows, activeConfig);
+  }, [processFichaData, activeConfig]);
 
-  // Preview ficha: primer seleccionado, o null
-  let previewFicha: FichaData | null = null;
-  if (previewFichaIndex !== null && practicantes[previewFichaIndex]) {
-    previewFicha = { practicante: practicantes[previewFichaIndex], school: fichaSchoolConfig };
-  } else if (selectedFichas.length > 0) {
-    previewFicha = selectedFichas[0];
+  const updateStudentEdition = (idx: number, updates: Partial<Practicante>) => {
+    setEditions(prev => ({
+      ...prev,
+      [idx]: { ...(prev[idx] || {}), ...updates }
+    }));
+  };
+
+  const resetStudentEdition = (idx: number) => {
+    setEditions(prev => {
+      const next = { ...prev };
+      delete next[idx];
+      return next;
+    });
+  };
+
+  // Preview ficha: el índice seleccionado explícitamente o el primero de la selección
+  let effectivePreviewIdx: number | null = null;
+  if (previewFichaIndex !== null && editedPracticantes[previewFichaIndex]) {
+    effectivePreviewIdx = previewFichaIndex;
+  } else if (selectedPracticantes.size > 0) {
+    effectivePreviewIdx = Array.from(selectedPracticantes).sort((a, b) => a - b)[0];
   }
+
+  const previewFicha: FichaData | null = effectivePreviewIdx !== null 
+    ? { practicante: editedPracticantes[effectivePreviewIdx], school: activeConfig }
+    : null;
 
   const signatureSamples = [
     { label: 'Firma demo PNG', src: '/logos/firma-recuerdo-demo.png' },
@@ -84,12 +145,12 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="glass-card px-6 py-6 sm:px-8 sm:py-7">
             <p className="text-xs uppercase tracking-[0.22em] mb-3" style={{ color: 'var(--text-secondary)' }}>
-              Escuela Nuestra Señora del Recuerdo
+              {activeConfig.nombre}
             </p>
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3">
             <span
               style={{
-                background: 'linear-gradient(135deg, #0f766e, #1d4ed8)',
+                background: `linear-gradient(135deg, ${activeConfig.estilos.colorPrimario}, ${activeConfig.estilos.colorSecundario})`,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}
@@ -98,23 +159,8 @@ export default function HomePage() {
             </span>
             </h1>
             <p className="text-base sm:text-lg max-w-3xl" style={{ color: 'var(--text-secondary)' }}>
-              Flujo optimizado para cargar Excel, seleccionar alumnos y generar fichas individuales en PDF o ZIP.
+              Configura tu escuela, carga datos de alumnos y edita cada ficha antes de generar el PDF final.
             </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 text-sm">
-              <div className="rounded-xl px-4 py-3" style={{ background: 'var(--surface)', border: '1px solid var(--card-border)' }}>
-                <p style={{ color: 'var(--text-muted)' }}>Código escuela</p>
-                <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>6382 / 6490 · Madrid</p>
-              </div>
-              <div className="rounded-xl px-4 py-3" style={{ background: 'var(--surface)', border: '1px solid var(--card-border)' }}>
-                <p style={{ color: 'var(--text-muted)' }}>Cabecera Excel</p>
-                <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>Fila 4 (headerRowIndex: 3)</p>
-              </div>
-              <div className="rounded-xl px-4 py-3" style={{ background: 'var(--surface)', border: '1px solid var(--card-border)' }}>
-                <p style={{ color: 'var(--text-muted)' }}>Salida</p>
-                <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>PDF único o ZIP individual</p>
-              </div>
-            </div>
           </div>
         </div>
       </header>
@@ -123,32 +169,21 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
           <div className="lg:col-span-2 space-y-5">
-            <div className="glass-card p-5 animate-slide-up">
-              <DemoModeToggle isDemo={isFichaDemo} onToggle={handleFichaDemoToggle} />
-              {isFichaDemo && (
-                <p className="text-xs mt-3 animate-fade-in" style={{ color: 'var(--text-muted)' }}>
-                  Datos de ejemplo: Eduardo Cobián y Marina León (con prácticas completas) + Ana García (sin prácticas).
-                </p>
-              )}
+            {/* GESTIÓN DE CONFIGURACIÓN */}
+            <div className="animate-slide-up">
+              <ConfigManager 
+                config={activeConfig} 
+                onConfigChange={handleConfigChange} 
+              />
             </div>
 
             <div className="glass-card p-5 animate-slide-up delay-100">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold"
-                  style={{ background: 'linear-gradient(135deg, #0f766e, #1d4ed8)' }}
-                >
-                  R
-                </div>
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    Escuela Nuestra Señora del Recuerdo
-                  </p>
-                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                    Código: 6382 / 6490 · Madrid
-                  </p>
-                </div>
-              </div>
+              <DemoModeToggle isDemo={isFichaDemo} onToggle={handleFichaDemoToggle} />
+              {isFichaDemo && (
+                <p className="text-xs mt-3 animate-fade-in" style={{ color: 'var(--text-muted)' }}>
+                  Cargando alumnos de ejemplo para la configuración actual.
+                </p>
+              )}
             </div>
 
             {!isFichaDemo && (
@@ -172,9 +207,10 @@ export default function HomePage() {
             {practicantes.length > 0 && (
               <div className="glass-card p-5 animate-slide-up delay-300">
                 <StudentSelector
-                  practicantes={practicantes}
+                  practicantes={editedPracticantes}
                   selected={selectedPracticantes}
                   onSelectionChange={setSelectedPracticantes}
+                  onStudentClick={setPreviewFichaIndex}
                 />
               </div>
             )}
@@ -185,57 +221,49 @@ export default function HomePage() {
               </div>
             )}
 
-            <div className="glass-card p-5 animate-slide-up delay-400" style={{ borderColor: 'rgba(15, 118, 110, 0.2)' }}>
-              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--accent-secondary)' }}>
-                ℹ️ ¿Cómo funciona?
-              </h3>
-              <ol className="text-xs space-y-2 list-decimal list-inside" style={{ color: 'var(--text-muted)' }}>
-                <li>Sube el Excel de alumnos MTL (todas las hojas se leen juntas)</li>
-                <li>Selecciona los alumnos para los que generar la ficha</li>
-                <li>Genera PDF único o ZIP con una ficha por alumno</li>
-              </ol>
-            </div>
-
             <div className="glass-card p-5 animate-slide-up delay-500">
               <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>
-                Firma de prueba en app
+                Firma activa
               </h3>
-              <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
-                Comparativa visual de assets en public para validar nitidez, trazo y fondo antes de decidir firma final.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {signatureSamples.map((sample) => (
-                  <div
-                    key={sample.src}
-                    className="rounded-xl p-3"
-                    style={{ background: '#ffffff', border: '1px solid #dbe3f0' }}
-                  >
-                    <p className="text-xs font-semibold mb-2" style={{ color: '#1f3a60' }}>{sample.label}</p>
-                    <div className="rounded-lg h-20 flex items-center justify-center" style={{ border: '1px dashed #9cb0cc' }}>
-                      <Image
-                        src={sample.src}
-                        alt={sample.label}
-                        width={220}
-                        height={70}
-                        unoptimized
-                        style={{ objectFit: 'contain', maxHeight: '58px', width: 'auto' }}
-                      />
-                    </div>
-                    <p className="text-[11px] mt-2 break-all" style={{ color: '#5d7091' }}>{sample.src}</p>
-                  </div>
-                ))}
+              <div className="rounded-xl p-3" style={{ background: '#ffffff', border: '1px solid #dbe3f0' }}>
+                <div className="rounded-lg h-20 flex items-center justify-center" style={{ border: '1px dashed #9cb0cc' }}>
+                  {activeConfig.valoresFijos.firma_escuela ? (
+                    <Image
+                      src={activeConfig.valoresFijos.firma_escuela}
+                      alt="Firma"
+                      width={220}
+                      height={70}
+                      unoptimized
+                      style={{ objectFit: 'contain', maxHeight: '58px', width: 'auto' }}
+                    />
+                  ) : (
+                    <span className="text-xs text-slate-400">Sin firma configurada</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 space-y-6">
+            {/* EDITOR DE CAMPOS */}
+            {effectivePreviewIdx !== null && (
+              <div className="glass-card p-6 animate-slide-up">
+                <FieldEditor 
+                  practicante={editedPracticantes[effectivePreviewIdx]}
+                  onUpdate={(updates) => updateStudentEdition(effectivePreviewIdx!, updates)}
+                  onReset={() => resetStudentEdition(effectivePreviewIdx!)}
+                />
+              </div>
+            )}
+
+            {/* VISTA PREVIA */}
             <div className="glass-card p-5 animate-slide-up delay-200 sticky top-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Vista previa</h2>
                 {previewFicha && (
                   <span
                     className="text-xs px-3 py-1 rounded-full"
-                    style={{ background: '#0f766e20', color: '#0f766e', border: '1px solid #0f766e33' }}
+                    style={{ background: 'rgba(15, 118, 110, 0.1)', color: activeConfig.estilos.colorPrimario, border: `1px solid ${activeConfig.estilos.colorPrimario}33` }}
                   >
                     {previewFicha.practicante.apellido1} {previewFicha.practicante.apellido2} {previewFicha.practicante.nombre}
                   </span>
@@ -254,8 +282,8 @@ export default function HomePage() {
                   <p className="text-lg font-medium mb-1">Sin fichas que mostrar</p>
                   <p className="text-sm">
                     {practicantes.length > 0
-                      ? 'Selecciona al menos un alumno para ver la vista previa'
-                      : 'Sube el Excel de alumnos o activa el modo Demo'}
+                      ? 'Selecciona un alumno para editarlo y ver la vista previa'
+                      : 'Carga una configuración y un archivo Excel'}
                   </p>
                 </div>
               )}
@@ -266,7 +294,7 @@ export default function HomePage() {
       </div>
 
       <footer className="py-4 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
-        <p>Generador de Fichas de Prácticas · Escuela Nuestra Señora del Recuerdo · {new Date().getFullYear()}</p>
+        <p>Generador de Fichas de Prácticas · {activeConfig.nombre} · {new Date().getFullYear()}</p>
       </footer>
     </main>
   );

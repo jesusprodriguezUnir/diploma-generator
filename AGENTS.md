@@ -40,10 +40,11 @@ tests/
 
 - **PDF generation is client-only** (`pdf-generator-client.ts`). Uses `html2pdf.js` via dynamic `import()` — never import at top-level.
 - **FichaPracticasTemplate** uses `forwardRef` so the generator can access the DOM node.
-- **School config** is currently `src/configs/escuela-recuerdo.json` and must conform to `FichaSchoolConfig`.
-- **Ficha format**: A4 portrait (`210mm` de ancho) con estilos inline dentro de `FichaPracticasTemplate` para compatibilidad con html2pdf.js.
+- **School config** is dynamic. Initial config is in `src/configs/escuela-recuerdo.json`, but changes are handled via `activeConfig` state and persisted in `localStorage`.
+- **ConfigManager & FieldEditor**: Use these components for managing school settings and individual student data corrections respectively.
+- **Ficha format**: A4 portrait (`210mm` de ancho) con estilos dinámicos basados en `school.estilos`.
 - **All shared types** are in `src/lib/types.ts` — add new types there, never inline them in components.
-- Tailwind v4 is used for the app shell UI only, not for los estilos internos de impresión.
+- Tailwind v4 is used for the app shell UI only. Immersive designs should use custom CSS variables mapped in `@theme`.
 
 ## Testing Conventions
 

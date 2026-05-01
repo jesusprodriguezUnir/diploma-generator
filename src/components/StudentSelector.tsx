@@ -7,12 +7,14 @@ interface StudentSelectorProps {
   practicantes: Practicante[];
   selected: Set<number>;
   onSelectionChange: (selected: Set<number>) => void;
+  onStudentClick?: (index: number) => void;
 }
 
 export default function StudentSelector({
   practicantes,
   selected,
   onSelectionChange,
+  onStudentClick,
 }: Readonly<StudentSelectorProps>) {
   const [search, setSearch] = useState('');
 
@@ -135,6 +137,7 @@ export default function StudentSelector({
               key={`${p._sheet}-${p._rowIndex}`}
               aria-label={`Seleccionar ${nombreCompleto || 'alumno'}`}
               className="flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors"
+              onClick={() => onStudentClick?.(globalIdx)}
               style={{
                 background: isChecked ? 'rgba(108,140,255,0.08)' : 'var(--surface)',
                 border: `1px solid ${isChecked ? 'rgba(108,140,255,0.3)' : 'var(--card-border)'}`,
@@ -143,7 +146,11 @@ export default function StudentSelector({
               <input
                 type="checkbox"
                 checked={isChecked}
-                onChange={() => toggle(globalIdx)}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  toggle(globalIdx);
+                }}
+                onClick={(e) => e.stopPropagation()}
                 className="w-4 h-4 cursor-pointer"
                 style={{ accentColor: 'var(--accent)' }}
               />

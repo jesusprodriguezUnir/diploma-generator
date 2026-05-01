@@ -5,8 +5,9 @@ Aplicación web para generar fichas individuales de prácticas en PDF a partir d
 Estado actual del proyecto:
 
 - Modo activo: ficha de prácticas.
-- Escuela activa: Escuela Nuestra Señora del Recuerdo.
-- Flujo principal: subida de Excel (multihoja), selección de alumnos y generación PDF/ZIP.
+- Configuración dinámica: soporte para carga y edición de múltiples escuelas vía JSON.
+- Edición pre-PDF: editor de campos para corregir datos de alumnos y valores fijos antes de generar.
+- Flujo principal: Configurar Escuela → Subida de Excel → Seleccionar/Editar Alumnos → Generar PDF/ZIP.
 
 Stack principal: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, xlsx, html2pdf.js y jszip.
 
@@ -67,16 +68,30 @@ Nota para E2E: si es la primera vez, instala navegadores con `npx playwright ins
 
 ## Funcionalidad
 
-### Modo ficha de prácticas
+### 1. Gestión de Escuela (Configuración)
 
-- Escuela fija: Escuela Nuestra Señora del Recuerdo.
+El sistema ya no depende de una configuración hardcodeada:
+- **Carga de JSON**: Permite subir ficheros de configuración de nuevas escuelas.
+- **Editor Integrado**: Permite modificar colores, nombres y valores fijos (director, ciudad, etc.) desde la UI.
+- **Exportación**: Puedes descargar el JSON configurado para guardarlo localmente.
+- **Persistencia**: La app recuerda la última configuración usada mediante `localStorage`.
+
+### 2. Procesamiento de Excel
+
 - Flujo:
 	1. Subir Excel de alumnos MTL.
 	2. El sistema lee todas las hojas y las concatena.
 	3. Se usa la fila 4 como cabecera (headerRowIndex = 3).
 	4. Se normalizan cabeceras con trim para tolerar espacios finales.
 	5. Se filtran filas vacías y se listan practicantes.
-	6. Seleccionar alumnos y generar PDF único o ZIP individual.
+
+### 3. Editor de Campos (Pre-PDF)
+
+Antes de generar el documento final, puedes:
+- Hacer clic en un alumno para abrir el **Editor de Ficha**.
+- Modificar cualquier campo (DNI, fechas, lugar de prácticas, etc.).
+- Ver los cambios reflejados instantáneamente en la **Vista Previa**.
+- Resetear los valores a su estado original del Excel si es necesario.
 
 ## Formatos de salida
 
@@ -96,9 +111,9 @@ Nota para E2E: si es la primera vez, instala navegadores con `npx playwright ins
 ```text
 src/
 	app/           # App Router (layout + page)
-	components/    # UI y plantillas PDF
-	configs/       # Configuración por escuela
-	lib/           # Parser Excel, mapeo y generación PDF cliente
+	components/    # UI, ConfigManager, FieldEditor y plantillas PDF
+	configs/       # Ficheros JSON de configuración (base)
+	lib/           # Validador de config, Parser Excel, mapeo y generación PDF
 	mocks/         # Datos demo
 public/
 	logos/         # Logos públicos
@@ -114,11 +129,13 @@ En [public/logos](public/logos) se han añadido firmas demo para validación vis
 
 ### Fichas de prácticas
 
-- Config principal en src/configs/escuela-recuerdo.json
+- Se pueden cargar dinámicamente mediante el panel de configuración.
+- El esquema esperado sigue la interfaz `FichaSchoolConfig` en `src/lib/types.ts`.
 - Incluye:
 	- modo: ficha
 	- mapeoColumnas específico de prácticas
 	- valoresFijos para rellenado del documento
+	- estilos (colores corporativos)
 	- firma_escuela para render de firma en la plantilla
 
 ## Firma de prueba
