@@ -73,7 +73,7 @@ function Checkbox({ checked = false }: { checked?: boolean }) {
       {checked && (
         <svg
           viewBox="0 0 10 10"
-          style={{ width: '80%', height: '80%', stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }}
+          style={{ width: '70%', height: '70%', stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }}
         >
           <line x1="1" y1="1" x2="9" y2="9" />
           <line x1="9" y1="1" x2="1" y2="9" />
@@ -111,9 +111,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
       .split('-')
       .map((s) => s.trim());
 
-    const fechaFirmaTexto = p.fecha_firma?.trim()
-      ? p.fecha_firma
-      : new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+    const fechaFirmaTexto = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
 
     const containerStyle: React.CSSProperties = {
       width: '210mm',
@@ -127,24 +125,43 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
       transformOrigin: 'top left',
     };
 
-    const renderWeekDays = () => (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1mm', padding: '0 2mm' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'Arial, sans-serif', fontSize: '8pt' }}>
-          <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+    const renderWeekDays = (isPernocta: boolean) => {
+      const dias = (p.dias_semana as string || '').toUpperCase();
+      const check = (dia: string) => isPernocta || dias.includes(dia);
+      
+      const renderDia = (letra: string) => (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1mm' }}>
+          <span style={{ fontFamily: 'Arial, sans-serif', fontSize: '8pt', lineHeight: 1.2 }}>{letra}</span>
+          <Checkbox checked={check(letra)} />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Checkbox /><Checkbox /><Checkbox /><Checkbox /><Checkbox /><Checkbox /><Checkbox />
+      );
+
+      return (
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 2mm' }}>
+          {renderDia('L')}
+          {renderDia('M')}
+          {renderDia('X')}
+          {renderDia('J')}
+          {renderDia('V')}
+          {renderDia('S')}
+          {renderDia('D')}
         </div>
-      </div>
-    );
+      );
+    };
 
     const renderActivityTable = (actividad: 1 | 2) => {
       const isActividad1 = actividad === 1;
+      const isPernocta = isActividad1 && fijos.tipo_actividad_default === 'Campamento con pernocta';
+
       const entidad = isActividad1 ? (p.entidad ?? '') : '';
+      const nifEntidad = isActividad1 ? (p.nif_entidad ?? '') : '';
       const direccion = isActividad1 ? (p.lugar_practicas ?? '') : '';
       const telefono = isActividad1 ? (p.persona_contacto ?? '') : '';
       const fechaInicio = isActividad1 ? (p.fecha_inicio ?? '') : '';
       const fechaFin = isActividad1 ? (p.fecha_final ?? '') : '';
+      const horario = isActividad1 ? (isPernocta ? 'Completo' : (p.horario ?? '')) : '';
+      const horasRealizadas = isActividad1 ? (p.horas_realizadas ?? '160') : '';
+      const horasPlanificadas = isActividad1 ? (p.horas_planificadas ?? '160') : '';
       const nParticipantes = isActividad1 ? (p.n_participantes ?? '') : '';
       const edades = isActividad1 ? (p.edad_participantes ?? '') : '';
       const denominacion = isActividad1 ? (p.titulo_memoria ?? '') : '';
@@ -171,15 +188,15 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
               <td style={labelCell}>Tipo de actividad</td>
               <td colSpan={8} style={{ ...valueCell, padding: '2mm' }}>
                 <div style={{ marginBottom: '1mm', display: 'flex', alignItems: 'center' }}>
-                  <Checkbox checked={isActividad1 && fijos.tipo_actividad_default === 'Campamento con pernocta'} />
+                  <Checkbox checked={isPernocta} />
                   <span style={{ marginLeft: '2mm' }}>Campamento con pernocta</span>
                 </div>
                 <div style={{ marginBottom: '1mm', display: 'flex', alignItems: 'center' }}>
-                  <Checkbox />
+                  <Checkbox checked={isActividad1 && fijos.tipo_actividad_default === 'Campamento urbano'} />
                   <span style={{ marginLeft: '2mm' }}>Campamento urbano</span>
                 </div>
                 <div style={{ marginBottom: '1mm', display: 'flex', alignItems: 'center' }}>
-                  <Checkbox />
+                  <Checkbox checked={isActividad1 && fijos.tipo_actividad_default === 'Intervención socioeducativa en entidades'} />
                   <span style={{ marginLeft: '2mm' }}>Intervención socioeducativa en entidades</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -192,7 +209,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
               <td style={labelCell}>Entidad organizadora</td>
               <td colSpan={5} style={valueCell}>{entidad}</td>
               <td style={labelCell}>NIF</td>
-              <td colSpan={2} style={valueCell}></td>
+              <td colSpan={2} style={valueCell}>{nifEntidad}</td>
             </tr>
             <tr>
               <td style={labelCell}>Dirección</td>
@@ -208,15 +225,15 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
             </tr>
             <tr>
               <td style={labelCell}>Días de la semana</td>
-              <td style={valueCell}>{renderWeekDays()}</td>
+              <td style={valueCell}>{renderWeekDays(isPernocta)}</td>
               <td style={labelCell}>Horario</td>
-              <td colSpan={6} style={valueCell}></td>
+              <td colSpan={6} style={valueCell}>{horario}</td>
             </tr>
             <tr>
               <td style={labelCell}>Nº horas totales realizadas</td>
-              <td colSpan={2} style={valueCell}></td>
+              <td colSpan={2} style={valueCell}>{horasRealizadas}</td>
               <td colSpan={2} style={labelCell}>Nº horas planificadas</td>
-              <td colSpan={4} style={valueCell}></td>
+              <td colSpan={4} style={valueCell}>{horasPlanificadas}</td>
             </tr>
             <tr>
               <td style={labelCell}>Nº de participantes</td>
@@ -277,7 +294,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
               <td style={labelCell}>NIF / NIE</td>
               <td style={valueCell}>{p.dni ?? ''}</td>
               <td colSpan={2} style={labelCell}>Nacionalidad</td>
-              <td colSpan={2} style={valueCell}></td>
+              <td colSpan={2} style={valueCell}>{p.nacionalidad ?? ''}</td>
             </tr>
             <tr>
               <td style={labelCell}>Nombre</td>
@@ -345,7 +362,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
           <tbody>
             <tr>
               <td style={labelCell}>Nº total de horas realizadas (actividad 1 + actividad 2)</td>
-              <td style={valueCell}></td>
+              <td style={valueCell}>{p.horas_realizadas ?? '160'}</td>
             </tr>
           </tbody>
         </table>
@@ -399,7 +416,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
             </tr>
             <tr>
               <td style={labelCell}>Tipo de titulación</td>
-              <td style={{ ...valueCell, minHeight: '6mm' }}></td>
+              <td style={{ ...valueCell, minHeight: '6mm' }}>{p.titulacion_tutor ?? 'Coordinador/a de Tiempo Libre'}</td>
             </tr>
           </tbody>
         </table>
@@ -445,7 +462,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
 
         <div style={{ marginTop: '7.5mm', fontSize: '9pt', fontFamily: 'Arial, sans-serif' }}>
           <div>
-            En {fijos.ciudad}, a {fechaFirmaTexto}
+            En {fijos.ciudad || 'Madrid'}, a {fechaFirmaTexto}
           </div>
           <div style={{ marginTop: '1.8mm', fontWeight: 'bold', textTransform: 'uppercase' }}>
             LA ESCUELA DE TIEMPO LIBRE
