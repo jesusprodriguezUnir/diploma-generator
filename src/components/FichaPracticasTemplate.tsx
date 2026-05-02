@@ -72,7 +72,7 @@ function Checkbox({ checked = false }: { checked?: boolean }) {
         color: '#000',
       }}
     >
-      {checked ? 'X' : ''}
+      <span style={{ position: 'relative', top: '-1px' }}>{checked ? 'X' : ''}</span>
     </span>
   );
 }
@@ -327,8 +327,9 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
         <div style={sectionTitle}>3.- Información de las prácticas (rellenar la/s actividad/es que se hayan realizado):</div>
         {renderActivityTable(1)}
 
-        <div className="html2pdf__page-break" style={{ breakBefore: 'page', pageBreakBefore: 'always' }} />
-        {renderActivityTable(2)}
+        <div style={{ breakBefore: 'page', pageBreakBefore: 'always', paddingTop: '4mm' }}>
+          {renderActivityTable(2)}
+        </div>
 
         <table style={tableStyle}>
           <colgroup>
@@ -397,8 +398,9 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
           </tbody>
         </table>
 
-        <div className="html2pdf__page-break" style={{ breakBefore: 'page', pageBreakBefore: 'always' }} />
-        <div style={sectionTitle}>6.- Memoria de prácticas:</div>
+        <div style={{ ...sectionTitle, breakBefore: 'page', pageBreakBefore: 'always', marginTop: 0, paddingTop: '4mm' }}>
+          6.- Memoria de prácticas:
+        </div>
         <table style={tableStyle}>
           <colgroup>
             <col style={{ width: '35.3%' }} />
