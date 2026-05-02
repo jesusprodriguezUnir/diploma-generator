@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { forwardRef, useState } from 'react';
 import Image from 'next/image';
@@ -11,9 +11,10 @@ interface FichaPracticasTemplateProps {
 
 const cell: React.CSSProperties = {
   border: '1px solid #000',
-  padding: '1mm 2mm',
+  padding: '2mm',
   fontSize: '9pt',
-  verticalAlign: 'top',
+  lineHeight: '1.3',
+  verticalAlign: 'middle',
   fontFamily: 'Arial, sans-serif',
   color: '#000',
   background: '#fff',
@@ -50,7 +51,7 @@ const activityTitle: React.CSSProperties = {
   fontWeight: 'bold',
   fontSize: '9pt',
   marginTop: '2mm',
-  marginBottom: '1mm',
+  marginBottom: '0.8mm',
   color: '#000',
 };
 
@@ -63,7 +64,6 @@ function Checkbox({ checked = false }: { checked?: boolean }) {
         height: '2.8mm',
         border: '1px solid #000',
         verticalAlign: 'middle',
-        marginRight: '1mm',
         textAlign: 'center',
         lineHeight: '2.4mm',
         fontFamily: 'Arial, sans-serif',
@@ -71,7 +71,7 @@ function Checkbox({ checked = false }: { checked?: boolean }) {
         color: '#000',
       }}
     >
-      {checked ? 'X' : ''}
+      {checked ? '✕' : ''}
     </span>
   );
 }
@@ -121,15 +121,14 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
     };
 
     const renderWeekDays = () => (
-      <span style={{ display: 'inline-flex', alignItems: 'center', columnGap: '2mm', flexWrap: 'wrap' }}>
-        <span>L <Checkbox /></span>
-        <span>M <Checkbox /></span>
-        <span>X <Checkbox /></span>
-        <span>J <Checkbox /></span>
-        <span>V <Checkbox /></span>
-        <span>S <Checkbox /></span>
-        <span>D <Checkbox /></span>
-      </span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1mm', padding: '0 2mm' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'Arial, sans-serif', fontSize: '8pt' }}>
+          <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Checkbox /><Checkbox /><Checkbox /><Checkbox /><Checkbox /><Checkbox /><Checkbox />
+        </div>
+      </div>
     );
 
     const renderActivityTable = (actividad: 1 | 2) => {
@@ -159,77 +158,76 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
           </colgroup>
           <tbody>
             <tr>
-              <td colSpan={2} style={labelCell}>Tipo de actividad</td>
-              <td colSpan={7} style={valueCell}>
-                <span style={{ marginRight: '4mm', whiteSpace: 'nowrap' }}>
+              <td colSpan={9} style={{ ...labelCell, padding: '2mm' }}>Actividad {actividad}</td>
+            </tr>
+            <tr>
+              <td style={labelCell}>Tipo de actividad</td>
+              <td colSpan={8} style={{ ...valueCell, padding: '2mm' }}>
+                <div style={{ marginBottom: '1mm', display: 'flex', alignItems: 'center' }}>
                   <Checkbox checked={isActividad1 && fijos.tipo_actividad_default === 'Campamento con pernocta'} />
-                  Campamento con pernocta
-                </span>
-                <span style={{ marginRight: '4mm', whiteSpace: 'nowrap' }}>
+                  <span style={{ marginLeft: '2mm' }}>Campamento con pernocta</span>
+                </div>
+                <div style={{ marginBottom: '1mm', display: 'flex', alignItems: 'center' }}>
                   <Checkbox />
-                  Campamento urbano
-                </span>
-                <span style={{ marginRight: '4mm', whiteSpace: 'nowrap' }}>
+                  <span style={{ marginLeft: '2mm' }}>Campamento urbano</span>
+                </div>
+                <div style={{ marginBottom: '1mm', display: 'flex', alignItems: 'center' }}>
                   <Checkbox />
-                  Intervención socioeducativa en entidades
-                </span>
-                <span style={{ whiteSpace: 'nowrap' }}>
+                  <span style={{ marginLeft: '2mm' }}>Intervención socioeducativa en entidades</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
                   <Checkbox />
-                  Otra (.............................................................)
-                </span>
+                  <span style={{ marginLeft: '2mm' }}>Otra (.......................................................................................................)</span>
+                </div>
               </td>
             </tr>
             <tr>
-              <td colSpan={2} style={labelCell}>Entidad organizadora</td>
-              <td colSpan={3} style={valueCell}>{entidad}</td>
-              <td colSpan={2} style={labelCell}>NIF</td>
+              <td style={labelCell}>Entidad organizadora</td>
+              <td colSpan={5} style={valueCell}>{entidad}</td>
+              <td style={labelCell}>NIF</td>
               <td colSpan={2} style={valueCell}></td>
             </tr>
             <tr>
-              <td colSpan={2} style={labelCell}>Dirección</td>
-              <td colSpan={7} style={valueCell}>{direccion}</td>
-            </tr>
-            <tr>
+              <td style={labelCell}>Dirección</td>
+              <td colSpan={5} style={valueCell}>{direccion}</td>
               <td colSpan={2} style={labelCell}>Teléfono</td>
-              <td colSpan={7} style={valueCell}>{telefono}</td>
+              <td style={valueCell}>{telefono}</td>
             </tr>
             <tr>
-              <td colSpan={2} style={labelCell}>Fecha inicio</td>
-              <td colSpan={3} style={valueCell}>{fechaInicio}</td>
-              <td colSpan={2} style={labelCell}>Fecha fin</td>
-              <td colSpan={2} style={valueCell}>{fechaFin}</td>
+              <td style={labelCell}>Fecha inicio</td>
+              <td colSpan={2} style={valueCell}>{fechaInicio}</td>
+              <td style={labelCell}>Fecha fin</td>
+              <td colSpan={5} style={valueCell}>{fechaFin}</td>
             </tr>
             <tr>
-              <td colSpan={2} style={labelCell}>Días de la semana</td>
-              <td colSpan={7} style={valueCell}>{renderWeekDays()}</td>
+              <td style={labelCell}>Días de la semana</td>
+              <td style={valueCell}>{renderWeekDays()}</td>
+              <td style={labelCell}>Horario</td>
+              <td colSpan={6} style={valueCell}></td>
             </tr>
             <tr>
-              <td colSpan={2} style={labelCell}>Horario</td>
-              <td colSpan={3} style={valueCell}></td>
-              <td colSpan={2} style={labelCell}>NÂº horas totales realizadas</td>
+              <td style={labelCell}>Nº horas totales realizadas</td>
               <td colSpan={2} style={valueCell}></td>
+              <td colSpan={2} style={labelCell}>Nº horas planificadas</td>
+              <td colSpan={4} style={valueCell}></td>
             </tr>
             <tr>
-              <td colSpan={2} style={labelCell}>NÂº horas planificadas</td>
-              <td colSpan={3} style={valueCell}></td>
-              <td colSpan={2} style={labelCell}>NÂº de participantes</td>
+              <td style={labelCell}>Nº de participantes</td>
               <td colSpan={2} style={valueCell}>{nParticipantes}</td>
+              <td style={labelCell}>Edades</td>
+              <td colSpan={5} style={valueCell}>{edades}</td>
             </tr>
             <tr>
-              <td colSpan={2} style={labelCell}>Edades</td>
-              <td colSpan={7} style={valueCell}>{edades}</td>
+              <td style={labelCell}>Denominación del proyecto</td>
+              <td colSpan={8} style={valueCell}>{denominacion}</td>
             </tr>
             <tr>
-              <td colSpan={2} style={labelCell}>Denominación del proyecto</td>
-              <td colSpan={7} style={valueCell}>{denominacion}</td>
+              <td style={labelCell}>Descripción de la actividad principal y objetivos</td>
+              <td colSpan={8} style={{ ...valueCell, minHeight: '18mm' }}>{descripcion}</td>
             </tr>
             <tr>
-              <td colSpan={2} style={labelCell}>Descripción de la actividad principal y objetivos</td>
-              <td colSpan={7} style={{ ...valueCell, minHeight: '18mm' }}>{descripcion}</td>
-            </tr>
-            <tr>
-              <td colSpan={2} style={labelCell}>Observaciones</td>
-              <td colSpan={7} style={{ ...valueCell, minHeight: '8mm' }}></td>
+              <td style={labelCell}>Observaciones</td>
+              <td colSpan={8} style={{ ...valueCell, minHeight: '8mm' }}></td>
             </tr>
           </tbody>
         </table>
@@ -238,57 +236,55 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
 
     return (
       <div ref={ref} style={containerStyle} className="ficha-page">
-        <div style={{ textAlign: 'center', marginBottom: '6mm' }}>
-          <div
-            style={{
-              display: 'inline-block',
-              background: '#C5E0B3',
-              border: '1px solid #000',
-              padding: '2mm 4mm',
-            }}
-          >
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: '10pt', fontWeight: 'bold' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8mm' }}>
+          <div style={{ width: '45mm', minHeight: '15mm' }}>
+            {school.logo ? (
+              <img src={school.logo} alt="Logo" style={{ maxWidth: '100%', maxHeight: '15mm', objectFit: 'contain' }} />
+            ) : null}
+          </div>
+          <div style={{ textAlign: 'center', flex: 1, alignSelf: 'center' }}>
+            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: '11pt', fontWeight: 'bold' }}>
               FICHA INDIVIDUAL DE PRÁCTICAS
             </div>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: '10pt' }}>
+            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: '10pt', marginTop: '1mm' }}>
               (A rellenar por la escuela)
             </div>
+          </div>
+          <div style={{ width: '45mm', textAlign: 'right', fontFamily: 'Arial, sans-serif', fontSize: '8pt', fontWeight: 'bold', alignSelf: 'center' }}>
+            {school.nombre}
           </div>
         </div>
 
         <div style={sectionTitle}>1.- Datos del/la alumno/a:</div>
         <table style={tableStyle}>
           <colgroup>
-            <col style={{ width: '8.7%' }} />
-            <col style={{ width: '20.1%' }} />
-            <col style={{ width: '9.4%' }} />
-            <col style={{ width: '18.8%' }} />
-            <col style={{ width: '4%' }} />
-            <col style={{ width: '12.1%' }} />
-            <col style={{ width: '26.9%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '20%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '20%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '30%' }} />
           </colgroup>
           <tbody>
             <tr>
               <td style={labelCell}>NIF / NIE</td>
-              <td colSpan={2} style={valueCell}>{p.dni ?? ''}</td>
+              <td style={valueCell}>{p.dni ?? ''}</td>
               <td colSpan={2} style={labelCell}>Nacionalidad</td>
               <td colSpan={2} style={valueCell}></td>
             </tr>
             <tr>
               <td style={labelCell}>Nombre</td>
-              <td colSpan={2} style={valueCell}>{p.nombre ?? ''}</td>
-              <td colSpan={2} style={labelCell}>Apellido 1</td>
-              <td colSpan={2} style={valueCell}>{p.apellido1 ?? ''}</td>
-            </tr>
-            <tr>
+              <td style={valueCell}>{p.nombre ?? ''}</td>
+              <td style={labelCell}>Apellido 1</td>
+              <td style={valueCell}>{p.apellido1 ?? ''}</td>
               <td style={labelCell}>Apellido 2</td>
-              <td colSpan={6} style={valueCell}>{p.apellido2 ?? ''}</td>
+              <td style={valueCell}>{p.apellido2 ?? ''}</td>
             </tr>
             <tr>
               <td style={labelCell}>Email</td>
               <td colSpan={3} style={valueCell}>{p.email ?? ''}</td>
               <td style={labelCell}>Teléfono</td>
-              <td colSpan={2} style={valueCell}>{p.telefono ?? ''}</td>
+              <td style={valueCell}>{p.telefono ?? ''}</td>
             </tr>
           </tbody>
         </table>
@@ -297,47 +293,38 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
         <table style={tableStyle}>
           <colgroup>
             <col style={{ width: '25.4%' }} />
-            <col style={{ width: '24.6%' }} />
-            <col style={{ width: '15.6%' }} />
-            <col style={{ width: '10.7%' }} />
-            <col style={{ width: '4%' }} />
-            <col style={{ width: '19.6%' }} />
+            <col style={{ width: '15%' }} />
+            <col style={{ width: '15%' }} />
+            <col style={{ width: '15%' }} />
+            <col style={{ width: '15%' }} />
+            <col style={{ width: '14.6%' }} />
           </colgroup>
           <tbody>
             <tr>
-              <td colSpan={2} style={labelCell}>Nombre de la escuela</td>
-              <td colSpan={4} style={valueCell}>{school.nombre}</td>
+              <td style={labelCell}>Nombre de la escuela</td>
+              <td colSpan={5} style={valueCell}>{school.nombre}</td>
             </tr>
             <tr>
-              <td colSpan={2} style={labelCell}>Nombre del curso</td>
-              <td colSpan={4} style={valueCell}>{fijos.nombre_curso}</td>
-            </tr>
-            <tr>
-              <td style={labelCell}>Código del curso</td>
-              <td colSpan={2} style={valueCell}>{p.codigo_curso ?? ''}</td>
-              <td style={labelCell}>Dirección escuela</td>
-              <td colSpan={2} style={valueCell}>{fijos.direccion_escuela}</td>
+              <td style={labelCell}>Nombre del curso</td>
+              <td colSpan={2} style={valueCell}>{fijos.nombre_curso}</td>
+              <td colSpan={2} style={labelCell}>Código del curso</td>
+              <td style={valueCell}>{p.codigo_curso ?? ''}</td>
             </tr>
             <tr>
               <td style={labelCell}>Fecha inicio del curso</td>
-              <td colSpan={2} style={valueCell}>{fechaInicioCurso ?? ''}</td>
-              <td style={labelCell}>Tel. escuela</td>
-              <td colSpan={2} style={valueCell}>{fijos.telefono_escuela}</td>
+              <td colSpan={5} style={valueCell}>{fechaInicioCurso ?? ''}</td>
             </tr>
             <tr>
               <td style={labelCell}>Fecha finalización fase teórica</td>
-              <td colSpan={2} style={valueCell}>{fechaFinTeorica ?? ''}</td>
-              <td style={labelCell}>Fecha finalización fase práctica</td>
+              <td style={valueCell}>{fechaFinTeorica ?? ''}</td>
+              <td colSpan={2} style={labelCell}>Fecha finalización fase práctica</td>
               <td colSpan={2} style={valueCell}>{p.fecha_final ?? ''}</td>
             </tr>
           </tbody>
         </table>
 
         <div style={sectionTitle}>3.- Información de las prácticas (rellenar la/s actividad/es que se hayan realizado):</div>
-        <div style={activityTitle}>Actividad 1</div>
         {renderActivityTable(1)}
-
-        <div style={activityTitle}>Actividad 2</div>
         {renderActivityTable(2)}
 
         <table style={tableStyle}>
@@ -347,7 +334,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
           </colgroup>
           <tbody>
             <tr>
-              <td style={labelCell}>NÂº total de horas realizadas (actividad 1 + actividad 2)</td>
+              <td style={labelCell}>Nº total de horas realizadas (actividad 1 + actividad 2)</td>
               <td style={valueCell}></td>
             </tr>
           </tbody>
@@ -356,36 +343,40 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
         <div style={sectionTitle}>4.- Datos de monitores/as:</div>
         <table style={tableStyle}>
           <colgroup>
-            <col style={{ width: '12.2%' }} />
-            <col style={{ width: '38%' }} />
-            <col style={{ width: '12.2%' }} />
-            <col style={{ width: '37.6%' }} />
+            <col style={{ width: '25%' }} />
+            <col style={{ width: '25%' }} />
+            <col style={{ width: '25%' }} />
+            <col style={{ width: '25%' }} />
           </colgroup>
-          <thead>
-            <tr>
-              <td style={{ ...cell, fontWeight: 'bold' }}></td>
-              <td style={{ ...cell, fontWeight: 'bold' }}>Actividad 1</td>
-              <td style={{ ...cell, fontWeight: 'bold' }}>Actividad 2</td>
-              <td style={{ ...cell, fontWeight: 'bold' }}>Actividad 3</td>
-            </tr>
-          </thead>
           <tbody>
             <tr>
-              <td style={labelCell}>NÂº de monitores/as y coordinadores/as titulados/as</td>
-              <td style={{ ...cell, minHeight: '8mm' }}>{p.n_monitores_titulados ?? ''}</td>
-              <td style={{ ...cell, minHeight: '8mm' }}></td>
-              <td style={{ ...cell, minHeight: '8mm' }}></td>
+              <td colSpan={2} style={{ ...labelCell, textAlign: 'center' }}>Nº de monitores/as y coordinadores/as titulados/as</td>
+              <td colSpan={2} style={{ ...labelCell, textAlign: 'center' }}>Nº de monitores/as y coordinadores/as en prácticas</td>
             </tr>
             <tr>
-              <td style={labelCell}>NÂº de monitores/as y coordinadores/as en prácticas</td>
-              <td style={{ ...cell, minHeight: '8mm' }}>{p.n_monitores_practicas ?? ''}</td>
-              <td style={{ ...cell, minHeight: '8mm' }}></td>
-              <td style={{ ...cell, minHeight: '8mm' }}></td>
+              <td style={labelCell}>Actividad 1</td>
+              <td style={{ ...valueCell, minHeight: '6mm' }}>{p.n_monitores_titulados ?? ''}</td>
+              <td style={labelCell}>Actividad 1</td>
+              <td style={{ ...valueCell, minHeight: '6mm' }}>{p.n_monitores_practicas ?? ''}</td>
+            </tr>
+            <tr>
+              <td style={labelCell}>Actividad 2</td>
+              <td style={{ ...valueCell, minHeight: '6mm' }}></td>
+              <td style={labelCell}>Actividad 2</td>
+              <td style={{ ...valueCell, minHeight: '6mm' }}></td>
+            </tr>
+            <tr>
+              <td style={labelCell}>Actividad 3</td>
+              <td style={{ ...valueCell, minHeight: '6mm' }}></td>
+              <td style={labelCell}>Actividad 3</td>
+              <td style={{ ...valueCell, minHeight: '6mm' }}></td>
             </tr>
           </tbody>
         </table>
 
-        <div style={sectionTitle}>5.- Datos del tutor/a de prácticas:</div>
+        <div style={sectionTitle}>
+          5.- Datos del tutor/a de prácticas<sup style={{ fontSize: '7pt' }}>[1]</sup>:
+        </div>
         <table style={tableStyle}>
           <colgroup>
             <col style={{ width: '23.1%' }} />
@@ -393,14 +384,12 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
           </colgroup>
           <tbody>
             <tr>
-              <td style={labelCell}>
-                <div>Nombre</div>
-                <div style={{ marginTop: '2mm' }}>Tipo de titulación</div>
-              </td>
-              <td style={valueCell}>
-                <div>{p.coordinador_practicas ?? ''}</div>
-                <div style={{ marginTop: '2mm', minHeight: '6mm' }}></div>
-              </td>
+              <td style={labelCell}>Nombre</td>
+              <td style={{ ...valueCell, minHeight: '6mm' }}>{p.coordinador_practicas ?? ''}</td>
+            </tr>
+            <tr>
+              <td style={labelCell}>Tipo de titulación</td>
+              <td style={{ ...valueCell, minHeight: '6mm' }}></td>
             </tr>
           </tbody>
         </table>
@@ -417,15 +406,22 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
               <td style={valueCell}>{p.titulo_memoria ?? ''}</td>
             </tr>
             <tr>
-              <td style={labelCell}>
-                <div>Fecha de entrega en la escuela</div>
-                <div style={{ marginTop: '2mm' }}>Coordinador/a de prácticas de la escuela</div>
-              </td>
-              <td style={valueCell}>
-                <div>{p.fecha_entrega_memoria ?? ''}</div>
-                <div style={{ marginTop: '2mm' }}>{p.coordinador_escuela ?? ''}</div>
-              </td>
+              <td style={labelCell}>Fecha de entrega en la escuela</td>
+              <td style={valueCell}>{p.fecha_entrega_memoria ?? ''}</td>
             </tr>
+            <tr>
+              <td style={labelCell}>Coordinador/a de prácticas de la escuela</td>
+              <td style={valueCell}>{p.coordinador_escuela ?? ''}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table style={{ ...tableStyle, width: '40%', marginTop: '4mm' }}>
+          <colgroup>
+            <col style={{ width: '40%' }} />
+            <col style={{ width: '60%' }} />
+          </colgroup>
+          <tbody>
             <tr>
               <td style={labelCell}>Calificación</td>
               <td style={{ ...valueCell, fontWeight: 'bold', fontSize: '11pt', textAlign: 'center' }}>
@@ -435,15 +431,15 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
           </tbody>
         </table>
 
-        <div style={{ marginTop: '8mm', fontSize: '9pt', fontFamily: 'Arial, sans-serif' }}>
+        <div style={{ marginTop: '7.5mm', fontSize: '9pt', fontFamily: 'Arial, sans-serif' }}>
           <div>
             En {fijos.ciudad}, a {fechaFirmaTexto}
           </div>
-          <div style={{ marginTop: '2mm', fontWeight: 'bold', textTransform: 'uppercase' }}>
+          <div style={{ marginTop: '1.8mm', fontWeight: 'bold', textTransform: 'uppercase' }}>
             LA ESCUELA DE TIEMPO LIBRE
           </div>
           <div style={{ marginTop: '1mm' }}>El director o coordinador de la escuela</div>
-          <div style={{ marginTop: '12mm' }}>
+          <div style={{ marginTop: '11mm' }}>
             <div
               style={{
                 position: 'relative',
@@ -481,12 +477,12 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
                   onError={() => setFailedSealSrc(sealSrc ?? null)}
                   style={{
                     position: 'absolute',
-                    right: '-8mm',
+                    right: '-6mm',
                     bottom: '0',
                     width: `${sealWidthMm}mm`,
                     height: `${sealHeightMm}mm`,
                     objectFit: 'contain',
-                    opacity: 0.85,
+                    opacity: 1,
                   }}
                 />
               )}
@@ -503,10 +499,14 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
           </div>
           <div>Fdo.: {fijos.director}</div>
         </div>
+
+        <div style={{ marginTop: '5mm', paddingTop: '2mm', borderTop: '1px solid #ccc', fontSize: '8pt', fontFamily: 'Arial, sans-serif', color: '#333' }}>
+          <sup style={{ marginRight: '1mm' }}>[1]</sup>
+          Junto con esta ficha deberá presentarse fotocopia escaneada de la titulación del tutor/a de prácticas, según lo dispuesto en el Decreto 14/2022 de 30 de marzo, art. 6.2.
+        </div>
       </div>
     );
   }
 );
 
 export default FichaPracticasTemplate;
-
