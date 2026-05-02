@@ -59,19 +59,20 @@ function Checkbox({ checked = false }: { checked?: boolean }) {
   return (
     <span
       style={{
-        display: 'inline-block',
-        width: '2.8mm',
-        height: '2.8mm',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '3.5mm',
+        height: '3.5mm',
         border: '1px solid #000',
         verticalAlign: 'middle',
-        textAlign: 'center',
-        lineHeight: '2.4mm',
         fontFamily: 'Arial, sans-serif',
-        fontSize: '8pt',
+        fontSize: '9pt',
+        fontWeight: 'bold',
         color: '#000',
       }}
     >
-      {checked ? '✕' : ''}
+      {checked ? 'X' : ''}
     </span>
   );
 }
@@ -106,7 +107,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
 
     const fechaFirmaTexto = p.fecha_firma?.trim()
       ? p.fecha_firma
-      : '__________ de _____________ de __________';
+      : new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
 
     const containerStyle: React.CSSProperties = {
       width: '210mm',
@@ -325,6 +326,8 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
 
         <div style={sectionTitle}>3.- Información de las prácticas (rellenar la/s actividad/es que se hayan realizado):</div>
         {renderActivityTable(1)}
+
+        <div className="html2pdf__page-break" style={{ breakBefore: 'page', pageBreakBefore: 'always' }} />
         {renderActivityTable(2)}
 
         <table style={tableStyle}>
@@ -394,6 +397,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
           </tbody>
         </table>
 
+        <div className="html2pdf__page-break" style={{ breakBefore: 'page', pageBreakBefore: 'always' }} />
         <div style={sectionTitle}>6.- Memoria de prácticas:</div>
         <table style={tableStyle}>
           <colgroup>
