@@ -4,6 +4,20 @@ import { useState, useRef } from 'react';
 import Image from 'next/image';
 import type { FichaSchoolConfig, FichaValoresFijos } from '@/lib/types';
 import { validateSchoolConfig } from '@/lib/config-validator';
+import escuelaRecuerdo from '@/configs/escuela-recuerdo.json';
+import escuelaEnforex from '@/configs/escuela-enforex.json';
+
+const AVAILABLE_CONFIGS = [
+  { id: 'escuela-recuerdo', label: 'Escuela Recuerdo', config: escuelaRecuerdo as FichaSchoolConfig },
+  { id: 'escuela-enforex', label: 'Enforex Camps', config: escuelaEnforex as FichaSchoolConfig }
+];
+
+const TIPO_ACTIVIDAD_OPTIONS = [
+  'Campamento con pernocta',
+  'Campamento urbano',
+  'Intervención socioeducativa en entidades',
+  'Otra'
+];
 
 interface ConfigManagerProps {
   config: FichaSchoolConfig;
@@ -96,6 +110,22 @@ export default function ConfigManager({ config, onConfigChange }: ConfigManagerP
         <div className="p-5 border-t border-white/10 space-y-6 animate-fade-in">
           {/* Acciones principales */}
           <div className="flex flex-wrap gap-3">
+            <div className="flex items-center gap-2 mr-4">
+              <label className="text-[10px] uppercase font-bold text-muted">Plantilla:</label>
+              <select 
+                value={config.id}
+                onChange={(e) => {
+                  const selected = AVAILABLE_CONFIGS.find(c => c.id === e.target.value);
+                  if (selected) onConfigChange(selected.config);
+                }}
+                className="bg-surface border border-border-card rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-accent"
+              >
+                <option value="" disabled>Selecciona una escuela</option>
+                {AVAILABLE_CONFIGS.map(c => (
+                  <option key={c.id} value={c.id}>{c.label}</option>
+                ))}
+              </select>
+            </div>
             <button 
               onClick={() => fileInputRef.current?.click()}
               className="px-4 py-2 rounded-lg bg-accent/20 hover:bg-accent/30 text-accent text-xs font-bold transition-all border border-accent/30"
@@ -186,8 +216,27 @@ export default function ConfigManager({ config, onConfigChange }: ConfigManagerP
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-widest text-muted">Valores Fijos (Globales)</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Object.entries(config.valoresFijos).map(([key, value]) => (
-                key !== 'firma_escuela' && key !== 'sello_escuela' && (
+              {Object.entries(config.valoresFijos).map(([key, value]) => {
+                if (key === 'firma_escuela' || key === 'sello_escuela') return null;
+
+                if (key === 'tipo_actividad_default') {
+                  return (
+                    <div key={key} className="space-y-1">
+                      <label className="text-[10px] uppercase font-bold text-muted">{key.replace(/_/g, ' ')}</label>
+                      <select
+                        value={value as string}
+                        onChange={(e) => updateField(`valoresFijos.${key}`, e.target.value)}
+                        className="w-full bg-surface border border-border-card rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
+                      >
+                        {TIPO_ACTIVIDAD_OPTIONS.map(opt => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    </div>
+                  );
+                }
+
+                return (
                   <div key={key} className="space-y-1">
                     <label className="text-[10px] uppercase font-bold text-muted">{key.replace(/_/g, ' ')}</label>
                     <input 
@@ -197,8 +246,8 @@ export default function ConfigManager({ config, onConfigChange }: ConfigManagerP
                       className="w-full bg-surface border border-border-card rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
                     />
                   </div>
-                )
-              ))}
+                );
+              })}
             </div>
           </div>
 

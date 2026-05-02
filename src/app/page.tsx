@@ -275,6 +275,7 @@ export default function HomePage() {
                 <FieldEditor 
                   key={`editor-${effectivePreviewIdx}`}
                   practicante={editedPracticantes[effectivePreviewIdx]}
+                  schoolConfig={activeConfig}
                   onUpdate={(updates) => updateStudentEdition(effectivePreviewIdx!, updates)}
                   onReset={() => resetStudentEdition(effectivePreviewIdx!)}
                 />

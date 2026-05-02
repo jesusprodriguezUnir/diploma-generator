@@ -151,7 +151,8 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
 
     const renderActivityTable = (actividad: 1 | 2) => {
       const isActividad1 = actividad === 1;
-      const isPernocta = isActividad1 && fijos.tipo_actividad_default === 'Campamento con pernocta';
+      const tipoActividadActual = p.tipo_actividad || fijos.tipo_actividad_default || '';
+      const isPernocta = isActividad1 && tipoActividadActual === 'Campamento con pernocta';
 
       const entidad = isActividad1 ? (p.entidad ?? '') : '';
       const nifEntidad = isActividad1 ? (p.nif_entidad || fijos.nif_entidad_default || '') : '';
@@ -192,15 +193,15 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
                   <span style={{ marginLeft: '2mm' }}>Campamento con pernocta</span>
                 </div>
                 <div style={{ marginBottom: '1mm', display: 'flex', alignItems: 'center' }}>
-                  <Checkbox checked={isActividad1 && fijos.tipo_actividad_default === 'Campamento urbano'} />
+                  <Checkbox checked={isActividad1 && tipoActividadActual === 'Campamento urbano'} />
                   <span style={{ marginLeft: '2mm' }}>Campamento urbano</span>
                 </div>
                 <div style={{ marginBottom: '1mm', display: 'flex', alignItems: 'center' }}>
-                  <Checkbox checked={isActividad1 && fijos.tipo_actividad_default === 'Intervención socioeducativa en entidades'} />
+                  <Checkbox checked={isActividad1 && tipoActividadActual === 'Intervención socioeducativa en entidades'} />
                   <span style={{ marginLeft: '2mm' }}>Intervención socioeducativa en entidades</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <Checkbox />
+                  <Checkbox checked={isActividad1 && tipoActividadActual === 'Otra'}/>
                   <span style={{ marginLeft: '2mm' }}>Otra (.......................................................................................................)</span>
                 </div>
               </td>

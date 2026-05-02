@@ -65,6 +65,7 @@ export interface Practicante {
   titulo_memoria?: string;
   fecha_entrega_memoria?: string;
   fecha_firma?: string;
+  tipo_actividad?: string;
   _sheet?: string;
   _rowIndex?: number;
   [key: string]: string | number | undefined;
