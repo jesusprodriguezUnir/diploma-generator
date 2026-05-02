@@ -57,7 +57,7 @@ const activityTitle: React.CSSProperties = {
 
 function Checkbox({ checked = false }: { checked?: boolean }) {
   return (
-    <span
+    <div
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -66,14 +66,20 @@ function Checkbox({ checked = false }: { checked?: boolean }) {
         height: '3.5mm',
         border: '1px solid #000',
         verticalAlign: 'middle',
-        fontFamily: 'Arial, sans-serif',
-        fontSize: '9pt',
-        fontWeight: 'bold',
-        color: '#000',
+        background: '#fff',
+        flexShrink: 0,
       }}
     >
-      <span style={{ position: 'relative', top: '-1px' }}>{checked ? 'X' : ''}</span>
-    </span>
+      {checked && (
+        <svg
+          viewBox="0 0 10 10"
+          style={{ width: '80%', height: '80%', stroke: '#000', strokeWidth: 1.5, strokeLinecap: 'round' }}
+        >
+          <line x1="1" y1="1" x2="9" y2="9" />
+          <line x1="9" y1="1" x2="1" y2="9" />
+        </svg>
+      )}
+    </div>
   );
 }
 
