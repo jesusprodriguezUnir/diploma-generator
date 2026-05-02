@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import type { Practicante } from '@/lib/types';
 
 interface FieldEditorProps {
@@ -18,7 +18,6 @@ export default function FieldEditor({ practicante, onUpdate, onReset }: FieldEdi
         { key: 'apellido1', label: 'Primer Apellido' },
         { key: 'apellido2', label: 'Segundo Apellido' },
         { key: 'dni', label: 'DNI / NIE' },
-        { key: 'fecha_nacimiento', label: 'F. Nacimiento' },
         { key: 'email', label: 'Email' },
         { key: 'telefono', label: 'Teléfono' },
       ]

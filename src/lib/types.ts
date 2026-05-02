@@ -32,6 +32,7 @@ export interface FichaValoresFijos {
   calificacion_default: string;
   tipo_actividad_default: string;
   firma_escuela?: string;
+  sello_escuela?: string;
   [key: string]: string | undefined;
 }
 

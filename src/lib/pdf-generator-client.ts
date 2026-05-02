@@ -66,12 +66,9 @@ export async function generateAllPDFs(
   const container = document.createElement('div');
 
   elements.forEach((el, index) => {
-    const wrapper = document.createElement('div');
+    const wrapper = el.cloneNode(true) as HTMLElement;
     wrapper.style.breakAfter = index < elements.length - 1 ? 'page' : 'auto';
     wrapper.style.breakInside = 'avoid';
-    wrapper.innerHTML = el.innerHTML;
-    // Copy inline styles from original
-    wrapper.className = el.className;
     container.appendChild(wrapper);
 
     onProgress?.({
