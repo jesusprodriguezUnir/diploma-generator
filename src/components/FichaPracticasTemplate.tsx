@@ -125,9 +125,9 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
       transformOrigin: 'top left',
     };
 
-    const renderWeekDays = (isPernocta: boolean) => {
+    const renderWeekDays = (isPernocta: boolean, isActividad1: boolean) => {
       const dias = (p.dias_semana as string || '').toUpperCase();
-      const check = (dia: string) => isPernocta || dias.includes(dia);
+      const check = (dia: string) => isActividad1 && (isPernocta || dias.includes(dia));
       
       const renderDia = (letra: string) => (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1mm' }}>
@@ -226,7 +226,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
             </tr>
             <tr>
               <td style={labelCell}>Días de la semana</td>
-              <td style={valueCell}>{renderWeekDays(isPernocta)}</td>
+              <td style={valueCell}>{renderWeekDays(isPernocta, isActividad1)}</td>
               <td style={labelCell}>Horario</td>
               <td colSpan={6} style={valueCell}>{horario}</td>
             </tr>
