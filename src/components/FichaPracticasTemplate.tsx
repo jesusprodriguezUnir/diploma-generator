@@ -1,7 +1,6 @@
 'use client';
 
 import { forwardRef, useState } from 'react';
-import Image from 'next/image';
 import type { FichaData } from '@/lib/types';
 
 interface FichaPracticasTemplateProps {
@@ -480,12 +479,9 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
               }}
             >
               {showSignature && fijos.firma_escuela && (
-                <Image
+                <img
                   src={fijos.firma_escuela}
                   alt="Firma escuela"
-                  width={Math.round(signatureWidthMm * 12)}
-                  height={Math.round(signatureHeightMm * 12)}
-                  unoptimized
                   onError={() => setFailedSignatureSrc(signatureSrc ?? null)}
                   style={{
                     position: 'absolute',
@@ -498,12 +494,9 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
                 />
               )}
               {showSeal && fijos.sello_escuela && (
-                <Image
+                <img
                   src={fijos.sello_escuela}
                   alt="Sello escuela"
-                  width={Math.round(sealWidthMm * 12)}
-                  height={Math.round(sealHeightMm * 12)}
-                  unoptimized
                   onError={() => setFailedSealSrc(sealSrc ?? null)}
                   style={{
                     position: 'absolute',
