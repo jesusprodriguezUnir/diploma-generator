@@ -154,7 +154,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
       const isPernocta = isActividad1 && fijos.tipo_actividad_default === 'Campamento con pernocta';
 
       const entidad = isActividad1 ? (p.entidad ?? '') : '';
-      const nifEntidad = isActividad1 ? (p.nif_entidad ?? '') : '';
+      const nifEntidad = isActividad1 ? (p.nif_entidad || fijos.nif_entidad_default || '') : '';
       const direccion = isActividad1 ? (p.lugar_practicas ?? '') : '';
       const telefono = isActividad1 ? (p.persona_contacto ?? '') : '';
       const fechaInicio = isActividad1 ? (p.fecha_inicio ?? '') : '';

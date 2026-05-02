@@ -45,6 +45,7 @@
     "director": "Rubén García Sánchez",
     "ciudad": "Madrid",
     "calificacion_default": "APTO",
+    "nif_entidad_default": "G84510585",
     "tipo_actividad_default": "Campamento con pernocta",
     "firma_escuela": "/logos/firma-recuerdo-vinuesa.jpg",
     "sello_escuela": "/logos/sello-recuerdo-vinuesa.jpg",

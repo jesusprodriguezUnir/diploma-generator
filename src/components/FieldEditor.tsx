@@ -18,6 +18,7 @@ export default function FieldEditor({ practicante, onUpdate, onReset }: FieldEdi
         { key: 'apellido1', label: 'Primer Apellido' },
         { key: 'apellido2', label: 'Segundo Apellido' },
         { key: 'dni', label: 'DNI / NIE' },
+        { key: 'nacionalidad', label: 'Nacionalidad' },
         { key: 'email', label: 'Email' },
         { key: 'telefono', label: 'Teléfono' },
       ]
@@ -34,9 +35,14 @@ export default function FieldEditor({ practicante, onUpdate, onReset }: FieldEdi
       title: '3. Prácticas',
       fields: [
         { key: 'entidad', label: 'Entidad' },
+        { key: 'nif_entidad', label: 'NIF Entidad' },
         { key: 'lugar_practicas', label: 'Lugar' },
         { key: 'fecha_inicio', label: 'Fecha Inicio' },
         { key: 'fecha_final', label: 'Fecha Fin' },
+        { key: 'dias_semana', label: 'Días Semana (ej: L,M,X)' },
+        { key: 'horario', label: 'Horario' },
+        { key: 'horas_planificadas', label: 'Horas Planificadas' },
+        { key: 'horas_realizadas', label: 'Horas Realizadas' },
         { key: 'persona_contacto', label: 'Contacto' },
         { key: 'n_participantes', label: 'Nº Participantes' },
         { key: 'su_grupo', label: 'Su Grupo' },
@@ -48,6 +54,7 @@ export default function FieldEditor({ practicante, onUpdate, onReset }: FieldEdi
         { key: 'titulo_memoria', label: 'Título Memoria' },
         { key: 'fecha_entrega_memoria', label: 'Fecha Entrega' },
         { key: 'coordinador_practicas', label: 'Coordinador Prácticas' },
+        { key: 'titulacion_tutor', label: 'Titulación Tutor' },
         { key: 'coordinador_escuela', label: 'Coordinador Escuela' },
       ]
     }
