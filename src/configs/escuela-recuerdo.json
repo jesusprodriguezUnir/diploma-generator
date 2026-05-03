@@ -36,7 +36,12 @@
     "COORDINADOR/COORDINADORA DE PRÁCTICAS DE LA ESCUELA": "coordinador_escuela",
     "Título Memoria": "titulo_memoria",
     "Fecha de entrega en la Escuela": "fecha_entrega_memoria",
-    "Fecha Firma": "fecha_firma"
+    "Fecha Firma": "fecha_firma",
+    "NACIONALIDAD": "nacionalidad",
+    "PAÍS": "nacionalidad",
+    "NIF ENTIDAD": "nif_entidad",
+    "NIF": "nif_entidad",
+    "CIF": "nif_entidad"
   },
   "valoresFijos": {
     "nombre_curso": "MTL ETL Recuerdo",

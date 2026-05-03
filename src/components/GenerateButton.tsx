@@ -31,9 +31,10 @@ export default function GenerateButton(props: Readonly<GenerateButtonProps>) {
 
   const getItemName = (item: FichaData): string => {
     const p = item.practicante;
-    return [p.apellido1, p.apellido2, p.nombre]
+    const full = [p.nombre, p.apellido1, p.apellido2]
       .filter(Boolean)
-      .join('_');
+      .join(' ');
+    return full.trim().replaceAll(/\s+/g, '-');
   };
 
   const getSchoolId = (): string => {
@@ -86,7 +87,10 @@ export default function GenerateButton(props: Readonly<GenerateButtonProps>) {
         downloadBlob(blob, `${label}-${schoolId}.zip`);
       } else {
         const blob = await generateAllPDFs(elements, setProgress, orientation);
-        downloadBlob(blob, `${label}-${schoolId}.pdf`);
+        const filename = items.length === 1 
+          ? `${getItemName(items[0])}.pdf` 
+          : `${label}-${schoolId}.pdf`;
+        downloadBlob(blob, filename);
       }
     } catch (err) {
       setProgress({

@@ -135,7 +135,7 @@ export async function generateZipPDFs(
       .normalize('NFD')
       .replaceAll(/[\u0300-\u036f]/g, '')
       .replaceAll(/[^a-zA-Z0-9\s-]/g, '')
-      .replaceAll(/\s+/g, '_');
+      .replaceAll(/\s+/g, '-');
 
     zip.file(`${safeName}.pdf`, pdfBlob);
   }
