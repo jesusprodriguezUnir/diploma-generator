@@ -54,6 +54,7 @@
     "ciudad": "Madrid",
     "calificacion_default": "APTO",
     "nif_entidad_default": "G84510585",
+    "entidad_organizadora_default": "Escuela Nuestra Señora del Recuerdo",
     "tipo_actividad_default": "Campamento con pernocta",
     "firma_escuela": "/logos/recuerdo/firma.jpg",
     "sello_escuela": "/logos/recuerdo/sello.jpg",

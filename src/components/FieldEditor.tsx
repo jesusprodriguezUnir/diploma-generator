@@ -185,6 +185,13 @@ export default function FieldEditor({ practicante, schoolConfig, onUpdate, onRes
                       id={`field-${field.key}`}
                       type="text"
                       value={String(practicante[field.key] ?? '')}
+                      placeholder={
+                        field.key === 'nif_entidad' 
+                          ? (schoolConfig.valoresFijos.nif_entidad_default ?? '') 
+                          : field.key === 'entidad' 
+                            ? (schoolConfig.valoresFijos.entidad_organizadora_default ?? '')
+                            : ''
+                      }
                       onChange={(e) => handleChange(field.key, e.target.value)}
                       className="w-full bg-surface border border-border-card rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-accent transition-all"
                     />

@@ -25,6 +25,7 @@ export default function HomePage() {
   // ─── Estado modo ficha ────────────────────────────────────────────────────
   const [isFichaDemo, setIsFichaDemo] = useState(false);
   const [fichaFileName, setFichaFileName] = useState<string>('');
+  const [originalRows, setOriginalRows] = useState<ExcelRow[]>([]); // Guardar filas originales para re-mapeo
   const [practicantes, setPracticantes] = useState<Practicante[]>([]);
   const [selectedPracticantes, setSelectedPracticantes] = useState<Set<number>>(new Set());
   const [fichaError, setFichaError] = useState<string | null>(null);
@@ -48,7 +49,14 @@ export default function HomePage() {
           if (parsed.valoresFijos.sello_escuela === '/logos/sello-recuerdo-vinuesa.jpg') {
             parsed.valoresFijos.sello_escuela = '/logos/recuerdo/sello.jpg';
           }
-          // Asegurar que las nuevas columnas de nacionalidad y NIF estén presentes si no lo estaban
+          // Asegurar NIF correcto para Recuerdo
+          if (parsed.valoresFijos.nif_entidad_default !== 'G84510585') {
+            parsed.valoresFijos.nif_entidad_default = 'G84510585';
+          }
+          if (!parsed.valoresFijos.entidad_organizadora_default) {
+            parsed.valoresFijos.entidad_organizadora_default = 'Escuela Nuestra Señora del Recuerdo';
+          }
+          // Asegurar que las nuevas columnas de nacionalidad y NIF estén presentes
           if (!parsed.mapeoColumnas['NACIONALIDAD']) {
             parsed.mapeoColumnas['NACIONALIDAD'] = 'nacionalidad';
             parsed.mapeoColumnas['PAÍS'] = 'nacionalidad';
@@ -62,6 +70,13 @@ export default function HomePage() {
             parsed.valoresFijos.sello_escuela = '';
             parsed.valoresFijos.firma_ancho_mm = '65';
             parsed.valoresFijos.firma_alto_mm = '25';
+          }
+          // Asegurar NIF correcto para Enforex
+          if (parsed.valoresFijos.nif_entidad_default !== 'B83695742') {
+            parsed.valoresFijos.nif_entidad_default = 'B83695742';
+          }
+          if (!parsed.valoresFijos.entidad_organizadora_default) {
+            parsed.valoresFijos.entidad_organizadora_default = 'Enforex Camps';
           }
           if (!parsed.mapeoColumnas['NACIONALIDAD']) {
             parsed.mapeoColumnas['NACIONALIDAD'] = 'nacionalidad';
@@ -82,7 +97,16 @@ export default function HomePage() {
   const handleConfigChange = useCallback((newConfig: FichaSchoolConfig) => {
     setActiveConfig(newConfig);
     localStorage.setItem('last_school_config', JSON.stringify(newConfig));
-  }, []);
+    
+    // Si hay datos cargados (sea demo o reales), re-mapearlos con la nueva config
+    if (originalRows.length > 0) {
+      const mapped = mapExcelToPracticantes(originalRows, newConfig);
+      setPracticantes(mapped);
+    } else if (isFichaDemo) {
+      const mapped = mapExcelToPracticantes(mockFichaRows, newConfig);
+      setPracticantes(mapped);
+    }
+  }, [originalRows, isFichaDemo]);
 
   // Practicantes con sus ediciones aplicadas
   const editedPracticantes = useMemo(() => {
@@ -109,10 +133,12 @@ export default function HomePage() {
         `Columnas esenciales no encontradas: ${validation.missingColumns.slice(0, 5).join(', ')}…`
       );
       setPracticantes([]);
+      setOriginalRows([]);
       return;
     }
     setFichaError(null);
     const clean = filterEmptyPracticantes(rows);
+    setOriginalRows(clean); // Guardar para futuros re-mapeos
     const mapped = mapExcelToPracticantes(clean, config);
     setPracticantes(mapped);
     setSelectedPracticantes(new Set());
@@ -124,18 +150,20 @@ export default function HomePage() {
     setIsFichaDemo(enabled);
     if (enabled) {
       setFichaFileName('datos-demo.xlsx');
+      setOriginalRows(mockFichaRows);
       const mapped = mapExcelToPracticantes(mockFichaRows, activeConfig);
       setPracticantes(mapped);
       setFichaError(null);
     } else {
       setFichaFileName('');
+      setOriginalRows([]);
       setPracticantes([]);
       setSelectedPracticantes(new Set());
       setEditions({});
       setFichaError(null);
       setPreviewFichaIndex(null);
     }
-  }, [processFichaData, activeConfig]);
+  }, [activeConfig]);
 
   const handleFichaFileLoaded = useCallback(async (rows: ExcelRow[], file: File) => {
     setFichaFileName(file.name);

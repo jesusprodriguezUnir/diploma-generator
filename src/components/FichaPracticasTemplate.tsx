@@ -153,7 +153,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
       const tipoActividadActual = p.tipo_actividad || fijos.tipo_actividad_default || '';
       const isPernocta = isActividad1 && tipoActividadActual === 'Campamento con pernocta';
 
-      const entidad = isActividad1 ? (p.entidad ?? '') : '';
+      const entidad = isActividad1 ? (p.entidad || fijos.entidad_organizadora_default || '') : '';
       const nifEntidad = isActividad1 ? (p.nif_entidad || fijos.nif_entidad_default || '') : '';
       const direccion = isActividad1 ? (p.lugar_practicas ?? '') : '';
       const telefono = isActividad1 ? (p.persona_contacto ?? '') : '';

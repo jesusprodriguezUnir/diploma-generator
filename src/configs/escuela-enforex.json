@@ -54,6 +54,7 @@
     "ciudad": "Madrid",
     "calificacion_default": "APTO",
     "nif_entidad_default": "B83695742",
+    "entidad_organizadora_default": "Enforex Camps",
     "tipo_actividad_default": "Campamento con pernocta",
     "firma_escuela": "/logos/enforex/firmaysello.png",
     "sello_escuela": "",

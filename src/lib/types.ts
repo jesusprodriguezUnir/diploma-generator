@@ -31,6 +31,8 @@ export interface FichaValoresFijos {
   ciudad: string;
   calificacion_default: string;
   tipo_actividad_default: string;
+  nif_entidad_default?: string;
+  entidad_organizadora_default?: string;
   firma_escuela?: string;
   sello_escuela?: string;
   [key: string]: string | undefined;
