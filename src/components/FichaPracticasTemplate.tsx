@@ -129,14 +129,14 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
       const check = (dia: string) => isActividad1 && (isPernocta || dias.includes(dia));
       
       const renderDia = (letra: string) => (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1mm' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1mm', flexShrink: 0 }}>
           <span style={{ fontFamily: 'Arial, sans-serif', fontSize: '8pt', lineHeight: 1.2 }}>{letra}</span>
           <Checkbox checked={check(letra)} />
         </div>
       );
 
       return (
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 2mm' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.8mm', padding: 0 }}>
           {renderDia('L')}
           {renderDia('M')}
           {renderDia('X')}
@@ -170,8 +170,8 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
       return (
         <table style={tableStyle}>
           <colgroup>
-            <col style={{ width: '23.1%' }} />
-            <col style={{ width: '14.9%' }} />
+            <col style={{ width: '19%' }} />
+            <col style={{ width: '19%' }} />
             <col style={{ width: '12%' }} />
             <col style={{ width: '15.1%' }} />
             <col style={{ width: '4.1%' }} />
@@ -225,7 +225,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
             </tr>
             <tr>
               <td style={labelCell}>Días de la semana</td>
-              <td style={valueCell}>{renderWeekDays(isPernocta, isActividad1)}</td>
+              <td style={{ ...valueCell, padding: '2mm 1mm' }}>{renderWeekDays(isPernocta, isActividad1)}</td>
               <td style={labelCell}>Horario</td>
               <td colSpan={6} style={valueCell}>{horario}</td>
             </tr>
@@ -486,7 +486,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
                   style={{
                     position: 'absolute',
                     left: '0',
-                    bottom: '2mm',
+                    bottom: showSeal ? '2mm' : '0',
                     width: `${signatureWidthMm}mm`,
                     height: `${signatureHeightMm}mm`,
                     objectFit: 'contain',

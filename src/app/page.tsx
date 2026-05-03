@@ -38,7 +38,25 @@ export default function HomePage() {
     const saved = localStorage.getItem('last_school_config');
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
+        const parsed = JSON.parse(saved) as FichaSchoolConfig;
+        
+        // Migración automática de rutas de firma y sello antiguas si se detectan
+        if (parsed.id === 'escuela-recuerdo') {
+          if (parsed.valoresFijos.firma_escuela === '/logos/firma-recuerdo-vinuesa.jpg') {
+            parsed.valoresFijos.firma_escuela = '/logos/recuerdo/firma.jpg';
+          }
+          if (parsed.valoresFijos.sello_escuela === '/logos/sello-recuerdo-vinuesa.jpg') {
+            parsed.valoresFijos.sello_escuela = '/logos/recuerdo/sello.jpg';
+          }
+        } else if (parsed.id === 'escuela-enforex') {
+          if (parsed.valoresFijos.firma_escuela === '/logos/Firma Enforex Rubén.png') {
+            parsed.valoresFijos.firma_escuela = '/logos/enforex/firmaysello.png';
+            parsed.valoresFijos.sello_escuela = '';
+            parsed.valoresFijos.firma_ancho_mm = '65';
+            parsed.valoresFijos.firma_alto_mm = '25';
+          }
+        }
+        
         setActiveConfig(parsed);
       } catch (e) {
         console.error('Error cargando config de localStorage', e);

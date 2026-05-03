@@ -125,6 +125,18 @@ export default function ConfigManager({ config, onConfigChange }: ConfigManagerP
                   <option key={c.id} value={c.id}>{c.label}</option>
                 ))}
               </select>
+              <button
+                onClick={() => {
+                  const selected = AVAILABLE_CONFIGS.find(c => c.id === config.id);
+                  if (selected && confirm(`¿Restablecer todos los valores de ${selected.label} a los originales?`)) {
+                    onConfigChange(selected.config);
+                  }
+                }}
+                className="px-2 py-1 rounded bg-slate-200 hover:bg-slate-300 text-[10px] font-bold transition-all"
+                title="Restablecer valores por defecto"
+              >
+                🔄
+              </button>
             </div>
             <button 
               onClick={() => fileInputRef.current?.click()}

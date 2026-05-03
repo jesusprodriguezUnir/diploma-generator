@@ -47,11 +47,11 @@
     "calificacion_default": "APTO",
     "nif_entidad_default": "B83695742",
     "tipo_actividad_default": "Campamento con pernocta",
-    "firma_escuela": "/logos/Firma Enforex Rubén.png",
-    "sello_escuela": "/logos/sello-recuerdo-vinuesa.jpg",
-    "firma_ancho_mm": "46",
-    "firma_alto_mm": "12",
-    "sello_ancho_mm": "20",
-    "sello_alto_mm": "20"
+    "firma_escuela": "/logos/enforex/firmaysello.png",
+    "sello_escuela": "",
+    "firma_ancho_mm": "65",
+    "firma_alto_mm": "25",
+    "sello_ancho_mm": "0",
+    "sello_alto_mm": "0"
   }
 }
