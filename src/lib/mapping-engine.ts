@@ -16,12 +16,12 @@ export function mapExcelToPracticantes(
 ): Practicante[] {
   const { mapeoColumnas } = config;
 
-  // Construir índice de alias: clave normalizada → clave interna
+  // Construir índice de alias: clave normalizada (UPPERCASE) → clave interna
   const aliasMap: Record<string, string> = {};
   for (const [excelCol, internalKey] of Object.entries(mapeoColumnas)) {
-    aliasMap[excelCol.trim()] = internalKey;
+    aliasMap[excelCol.trim().toUpperCase()] = internalKey;
   }
-
+  
   return rows
     .map((row) => {
       const mapped: Practicante = {};
@@ -31,11 +31,11 @@ export function mapExcelToPracticantes(
       if (row['_rowIndex'] !== undefined) mapped._rowIndex = Number(row['_rowIndex']);
 
       for (const [rawKey, value] of Object.entries(row)) {
-        const trimmedKey = rawKey.trim();
+        const trimmedKey = rawKey.trim().toUpperCase();
         // Saltar metadatos internos
-        if (trimmedKey.startsWith('_')) continue;
+        if (rawKey.startsWith('_')) continue;
 
-        // Buscar clave en aliasMap con tolerancia de espacios en el valor Excel también
+        // Buscar clave en aliasMap
         const internalKey = aliasMap[trimmedKey];
         if (internalKey) {
           const strVal = value !== undefined && value !== null ? String(value).trim() : '';

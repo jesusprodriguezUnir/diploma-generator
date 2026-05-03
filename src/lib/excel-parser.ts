@@ -69,10 +69,15 @@ function formatDateToString(date: Date): string {
  * clave (nombre, apellido1, dni) están todos vacíos.
  */
 export function filterEmptyPracticantes(rows: ExcelRow[]): ExcelRow[] {
+  const getVal = (row: ExcelRow, ...aliases: string[]) => {
+    const entry = Object.entries(row).find(([k]) => aliases.includes(k.trim().toUpperCase()));
+    return String(entry ? entry[1] ?? '' : '').trim();
+  };
+
   return rows.filter((row) => {
-    const nombre = String(row['NOMBRE'] ?? '').trim();
-    const apellido1 = String(row['PRIMER APELLIDO'] ?? '').trim();
-    const dni = String(row['D.N.I.'] ?? '').trim();
+    const nombre = getVal(row, 'NOMBRE');
+    const apellido1 = getVal(row, 'PRIMER APELLIDO', 'APELLIDO 1', 'APELLIDO1');
+    const dni = getVal(row, 'D.N.I.', 'DNI', 'NIF', 'NIE');
     return nombre !== '' || apellido1 !== '' || dni !== '';
   });
 }
@@ -93,14 +98,14 @@ export function validateExcelHeaders(
     };
   }
 
-  const excelHeaders = new Set(Object.keys(rows[0]).map((h) => h.trim()));
+  const excelHeaders = new Set(Object.keys(rows[0]).map((h) => h.trim().toUpperCase()));
   const requiredColumns = Object.keys(config.mapeoColumnas);
 
   const foundColumns = requiredColumns.filter((col) =>
-    excelHeaders.has(col.trim())
+    excelHeaders.has(col.trim().toUpperCase())
   );
   const missingColumns = requiredColumns.filter(
-    (col) => !excelHeaders.has(col.trim())
+    (col) => !excelHeaders.has(col.trim().toUpperCase())
   );
 
   // Para fichas, solo requerimos las columnas "core" de identidad del alumno.

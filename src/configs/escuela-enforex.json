@@ -39,6 +39,9 @@
     "Fecha Firma": "fecha_firma",
     "NACIONALIDAD": "nacionalidad",
     "PAÍS": "nacionalidad",
+    "NAC": "nacionalidad",
+    "NACIONALITAT": "nacionalidad",
+    "NATIONALITY": "nacionalidad",
     "NIF ENTIDAD": "nif_entidad",
     "NIF": "nif_entidad",
     "CIF": "nif_entidad"

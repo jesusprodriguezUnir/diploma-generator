@@ -48,12 +48,27 @@ export default function HomePage() {
           if (parsed.valoresFijos.sello_escuela === '/logos/sello-recuerdo-vinuesa.jpg') {
             parsed.valoresFijos.sello_escuela = '/logos/recuerdo/sello.jpg';
           }
+          // Asegurar que las nuevas columnas de nacionalidad y NIF estén presentes si no lo estaban
+          if (!parsed.mapeoColumnas['NACIONALIDAD']) {
+            parsed.mapeoColumnas['NACIONALIDAD'] = 'nacionalidad';
+            parsed.mapeoColumnas['PAÍS'] = 'nacionalidad';
+            parsed.mapeoColumnas['NAC'] = 'nacionalidad';
+            parsed.mapeoColumnas['NIF ENTIDAD'] = 'nif_entidad';
+            parsed.mapeoColumnas['NIF'] = 'nif_entidad';
+          }
         } else if (parsed.id === 'escuela-enforex') {
           if (parsed.valoresFijos.firma_escuela === '/logos/Firma Enforex Rubén.png') {
             parsed.valoresFijos.firma_escuela = '/logos/enforex/firmaysello.png';
             parsed.valoresFijos.sello_escuela = '';
             parsed.valoresFijos.firma_ancho_mm = '65';
             parsed.valoresFijos.firma_alto_mm = '25';
+          }
+          if (!parsed.mapeoColumnas['NACIONALIDAD']) {
+            parsed.mapeoColumnas['NACIONALIDAD'] = 'nacionalidad';
+            parsed.mapeoColumnas['PAÍS'] = 'nacionalidad';
+            parsed.mapeoColumnas['NAC'] = 'nacionalidad';
+            parsed.mapeoColumnas['NIF ENTIDAD'] = 'nif_entidad';
+            parsed.mapeoColumnas['NIF'] = 'nif_entidad';
           }
         }
         
