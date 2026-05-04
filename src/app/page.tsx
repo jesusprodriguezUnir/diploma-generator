@@ -1,191 +1,35 @@
 'use client';
 
-import { useState, useCallback, useMemo, type ReactNode, useEffect } from 'react';
 import Image from 'next/image';
-import type {
-  ExcelRow,
-  FichaData,
-  Practicante,
-  FichaSchoolConfig,
-} from '@/lib/types';
-import { mockFichaRows, fichaSchoolConfig as defaultSchoolConfig } from '@/mocks/mock-fichas';
-import { validateExcelHeaders, filterEmptyPracticantes } from '@/lib/excel-parser';
-import { mapExcelToPracticantes } from '@/lib/mapping-engine';
-import DemoModeToggle from '@/components/DemoModeToggle';
-import GenerateButton from '@/components/GenerateButton';
-import StudentSelector from '@/components/StudentSelector';
-import FichaPracticasTemplate from '@/components/FichaPracticasTemplate';
-import ConfigManager from '@/components/ConfigManager';
-import FieldEditor from '@/components/FieldEditor';
+import { useConfig } from '@/features/config/ConfigContext';
+import { useStudents } from '@/features/students/StudentsContext';
+import DemoModeToggle from '@/features/students/DemoModeToggle';
+import GenerateButton from '@/features/generation/GenerateButton';
+import StudentSelector from '@/features/students/StudentSelector';
+import FichaPracticasTemplate from '@/features/fichas/FichaPracticasTemplate';
+import ConfigManager from '@/features/config/ConfigManager';
+import FieldEditor from '@/features/students/FieldEditor';
+import FichaFileUploader from '@/features/students/FichaFileUploader';
 
 export default function HomePage() {
-  // ─── Configuración activa ────────────────────────────────────────────────
-  const [activeConfig, setActiveConfig] = useState<FichaSchoolConfig>(defaultSchoolConfig);
+  const { activeConfig } = useConfig();
+  const {
+    practicantes,
+    editedPracticantes,
+    selectedPracticantes,
+    previewFichaIndex,
+    fileName,
+    isDemo,
+    error: fichaError,
+    previewFichas,
+    selectedFichas,
+    loadFromExcel,
+    loadDemo,
+    clearAll,
+    updateEdition,
+    resetEdition,
+  } = useStudents();
 
-  // ─── Estado modo ficha ────────────────────────────────────────────────────
-  const [isFichaDemo, setIsFichaDemo] = useState(false);
-  const [fichaFileName, setFichaFileName] = useState<string>('');
-  const [originalRows, setOriginalRows] = useState<ExcelRow[]>([]); // Guardar filas originales para re-mapeo
-  const [practicantes, setPracticantes] = useState<Practicante[]>([]);
-  const [selectedPracticantes, setSelectedPracticantes] = useState<Set<number>>(new Set());
-  const [fichaError, setFichaError] = useState<string | null>(null);
-  const [previewFichaIndex, setPreviewFichaIndex] = useState<number | null>(null);
-
-  // ─── Ediciones ───────────────────────────────────────────────────────────
-  const [editions, setEditions] = useState<Record<number, Partial<Practicante>>>({});
-
-  // Cargar configuración guardada si existe
-  useEffect(() => {
-    const saved = localStorage.getItem('last_school_config');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as FichaSchoolConfig;
-        
-        // Migración automática de rutas de firma y sello antiguas si se detectan
-        if (parsed.id === 'escuela-recuerdo') {
-          if (parsed.valoresFijos.firma_escuela === '/logos/firma-recuerdo-vinuesa.jpg') {
-            parsed.valoresFijos.firma_escuela = '/logos/recuerdo/firma.jpg';
-          }
-          if (parsed.valoresFijos.sello_escuela === '/logos/sello-recuerdo-vinuesa.jpg') {
-            parsed.valoresFijos.sello_escuela = '/logos/recuerdo/sello.jpg';
-          }
-          // Asegurar NIF correcto para Recuerdo
-          if (parsed.valoresFijos.nif_entidad_default !== 'G84510585') {
-            parsed.valoresFijos.nif_entidad_default = 'G84510585';
-          }
-          if (!parsed.valoresFijos.entidad_organizadora_default) {
-            parsed.valoresFijos.entidad_organizadora_default = 'Escuela Nuestra Señora del Recuerdo';
-          }
-          // Asegurar que las nuevas columnas de nacionalidad y NIF estén presentes
-          if (!parsed.mapeoColumnas['NACIONALIDAD']) {
-            parsed.mapeoColumnas['NACIONALIDAD'] = 'nacionalidad';
-            parsed.mapeoColumnas['PAÍS'] = 'nacionalidad';
-            parsed.mapeoColumnas['NAC'] = 'nacionalidad';
-            parsed.mapeoColumnas['NIF ENTIDAD'] = 'nif_entidad';
-            parsed.mapeoColumnas['NIF'] = 'nif_entidad';
-          }
-        } else if (parsed.id === 'escuela-enforex') {
-          if (parsed.valoresFijos.firma_escuela === '/logos/Firma Enforex Rubén.png') {
-            parsed.valoresFijos.firma_escuela = '/logos/enforex/firmaysello.png';
-            parsed.valoresFijos.sello_escuela = '';
-            parsed.valoresFijos.firma_ancho_mm = '65';
-            parsed.valoresFijos.firma_alto_mm = '25';
-          }
-          // Asegurar NIF correcto para Enforex
-          if (parsed.valoresFijos.nif_entidad_default !== 'B83695742') {
-            parsed.valoresFijos.nif_entidad_default = 'B83695742';
-          }
-          if (!parsed.valoresFijos.entidad_organizadora_default) {
-            parsed.valoresFijos.entidad_organizadora_default = 'Enforex Camps';
-          }
-          if (!parsed.mapeoColumnas['NACIONALIDAD']) {
-            parsed.mapeoColumnas['NACIONALIDAD'] = 'nacionalidad';
-            parsed.mapeoColumnas['PAÍS'] = 'nacionalidad';
-            parsed.mapeoColumnas['NAC'] = 'nacionalidad';
-            parsed.mapeoColumnas['NIF ENTIDAD'] = 'nif_entidad';
-            parsed.mapeoColumnas['NIF'] = 'nif_entidad';
-          }
-        }
-        
-        setActiveConfig(parsed);
-      } catch (e) {
-        console.error('Error cargando config de localStorage', e);
-      }
-    }
-  }, []);
-
-  const handleConfigChange = useCallback((newConfig: FichaSchoolConfig) => {
-    setActiveConfig(newConfig);
-    localStorage.setItem('last_school_config', JSON.stringify(newConfig));
-    
-    // Si hay datos cargados (sea demo o reales), re-mapearlos con la nueva config
-    if (originalRows.length > 0) {
-      const mapped = mapExcelToPracticantes(originalRows, newConfig);
-      setPracticantes(mapped);
-    } else if (isFichaDemo) {
-      const mapped = mapExcelToPracticantes(mockFichaRows, newConfig);
-      setPracticantes(mapped);
-    }
-  }, [originalRows, isFichaDemo]);
-
-  // Practicantes con sus ediciones aplicadas
-  const editedPracticantes = useMemo(() => {
-    return practicantes.map((p, idx) => ({
-      ...p,
-      ...(editions[idx] || {})
-    }));
-  }, [practicantes, editions]);
-
-  const selectedFichas: FichaData[] = useMemo(() => {
-    return Array.from(selectedPracticantes)
-      .sort((a, b) => a - b)
-      .map((idx) => ({ 
-        practicante: editedPracticantes[idx], 
-        school: activeConfig 
-      }));
-  }, [selectedPracticantes, editedPracticantes, activeConfig]);
-
-  // ─── Lógica modo ficha ────────────────────────────────────────────────────
-  const processFichaData = useCallback((rows: ExcelRow[], config: FichaSchoolConfig) => {
-    const validation = validateExcelHeaders(rows, config);
-    if (!validation.isValid) {
-      setFichaError(
-        `Columnas esenciales no encontradas: ${validation.missingColumns.slice(0, 5).join(', ')}…`
-      );
-      setPracticantes([]);
-      setOriginalRows([]);
-      return;
-    }
-    setFichaError(null);
-    const clean = filterEmptyPracticantes(rows);
-    setOriginalRows(clean); // Guardar para futuros re-mapeos
-    const mapped = mapExcelToPracticantes(clean, config);
-    setPracticantes(mapped);
-    setSelectedPracticantes(new Set());
-    setEditions({}); // Limpiar ediciones al cargar nuevo archivo
-    setPreviewFichaIndex(null);
-  }, []);
-
-  const handleFichaDemoToggle = useCallback((enabled: boolean) => {
-    setIsFichaDemo(enabled);
-    if (enabled) {
-      setFichaFileName('datos-demo.xlsx');
-      setOriginalRows(mockFichaRows);
-      const mapped = mapExcelToPracticantes(mockFichaRows, activeConfig);
-      setPracticantes(mapped);
-      setFichaError(null);
-    } else {
-      setFichaFileName('');
-      setOriginalRows([]);
-      setPracticantes([]);
-      setSelectedPracticantes(new Set());
-      setEditions({});
-      setFichaError(null);
-      setPreviewFichaIndex(null);
-    }
-  }, [activeConfig]);
-
-  const handleFichaFileLoaded = useCallback(async (rows: ExcelRow[], file: File) => {
-    setFichaFileName(file.name);
-    processFichaData(rows, activeConfig);
-  }, [processFichaData, activeConfig]);
-
-  const updateStudentEdition = (idx: number, updates: Partial<Practicante>) => {
-    setEditions(prev => ({
-      ...prev,
-      [idx]: { ...(prev[idx] || {}), ...updates }
-    }));
-  };
-
-  const resetStudentEdition = (idx: number) => {
-    setEditions(prev => {
-      const next = { ...prev };
-      delete next[idx];
-      return next;
-    });
-  };
-
-  // Preview ficha: el índice seleccionado explícitamente o el primero de la selección
   let effectivePreviewIdx: number | null = null;
   if (previewFichaIndex !== null && editedPracticantes[previewFichaIndex]) {
     effectivePreviewIdx = previewFichaIndex;
@@ -193,36 +37,10 @@ export default function HomePage() {
     effectivePreviewIdx = Array.from(selectedPracticantes).sort((a, b) => a - b)[0];
   }
 
-  const previewFichas: FichaData[] = useMemo(() => {
-    // Si hay seleccionados, mostramos todos los seleccionados
-    if (selectedPracticantes.size > 0) {
-      return Array.from(selectedPracticantes)
-        .sort((a, b) => a - b)
-        .map(idx => ({
-          practicante: {
-            ...practicantes[idx],
-            ...(editions[idx] || {})
-          },
-          school: activeConfig
-        }));
-    }
-    // Si no hay seleccionados pero hay uno clickeado (preview explicito)
-    if (previewFichaIndex !== null && practicantes[previewFichaIndex]) {
-      return [{
-        practicante: {
-          ...practicantes[previewFichaIndex],
-          ...(editions[previewFichaIndex] || {})
-        },
-        school: activeConfig
-      }];
-    }
-    return [];
-  }, [selectedPracticantes, practicantes, editions, activeConfig, previewFichaIndex]);
-
-  const signatureSamples = [
-    { label: 'Firma demo PNG', src: '/logos/firma-recuerdo-demo.png' },
-    { label: 'Firma demo SVG', src: '/logos/firma-recuerdo-demo.svg' },
-  ];
+  const handleDemoToggle = (enabled: boolean) => {
+    if (enabled) loadDemo();
+    else clearAll();
+  };
 
   return (
     <main className="flex-1 flex flex-col">
@@ -233,15 +51,15 @@ export default function HomePage() {
               {activeConfig.nombre}
             </p>
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3">
-            <span
-              style={{
-                background: `linear-gradient(135deg, ${activeConfig.estilos.colorPrimario}, ${activeConfig.estilos.colorSecundario})`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              Fichas de Prácticas
-            </span>
+              <span
+                style={{
+                  background: `linear-gradient(135deg, ${activeConfig.estilos.colorPrimario}, ${activeConfig.estilos.colorSecundario})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                Fichas de Prácticas
+              </span>
             </h1>
             <p className="text-base sm:text-lg max-w-3xl" style={{ color: 'var(--text-secondary)' }}>
               Configura tu escuela, carga datos de alumnos y edita cada ficha antes de generar el PDF final.
@@ -254,29 +72,22 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
           <div className="lg:col-span-2 space-y-5">
-            {/* GESTIÓN DE CONFIGURACIÓN */}
             <div className="animate-slide-up">
-              <ConfigManager 
-                config={activeConfig} 
-                onConfigChange={handleConfigChange} 
-              />
+              <ConfigManager />
             </div>
 
             <div className="glass-card p-5 animate-slide-up delay-100">
-              <DemoModeToggle isDemo={isFichaDemo} onToggle={handleFichaDemoToggle} />
-              {isFichaDemo && (
+              <DemoModeToggle isDemo={isDemo} onToggle={handleDemoToggle} />
+              {isDemo && (
                 <p className="text-xs mt-3 animate-fade-in" style={{ color: 'var(--text-muted)' }}>
                   Cargando alumnos de ejemplo para la configuración actual.
                 </p>
               )}
             </div>
 
-            {!isFichaDemo && (
+            {!isDemo && (
               <div className="glass-card p-5 animate-slide-up delay-200">
-                <FichaFileUploader
-                  onFileLoaded={handleFichaFileLoaded}
-                  fileName={fichaFileName}
-                />
+                <FichaFileUploader onFileLoaded={loadFromExcel} fileName={fileName} />
               </div>
             )}
 
@@ -291,18 +102,13 @@ export default function HomePage() {
 
             {practicantes.length > 0 && (
               <div className="glass-card p-5 animate-slide-up delay-300">
-                <StudentSelector
-                  practicantes={editedPracticantes}
-                  selected={selectedPracticantes}
-                  onSelectionChange={setSelectedPracticantes}
-                  onStudentClick={setPreviewFichaIndex}
-                />
+                <StudentSelector />
               </div>
             )}
 
             {selectedFichas.length > 0 && (
               <div className="glass-card p-5 animate-slide-up delay-400">
-                <GenerateButton items={selectedFichas} />
+                <GenerateButton />
               </div>
             )}
 
@@ -330,20 +136,18 @@ export default function HomePage() {
           </div>
 
           <div className="lg:col-span-3 space-y-6">
-            {/* EDITOR DE CAMPOS */}
             {selectedPracticantes.size === 1 && effectivePreviewIdx !== null && (
               <div className="glass-card p-6 animate-slide-up">
-                <FieldEditor 
+                <FieldEditor
                   key={`editor-${effectivePreviewIdx}`}
                   practicante={editedPracticantes[effectivePreviewIdx]}
                   schoolConfig={activeConfig}
-                  onUpdate={(updates) => updateStudentEdition(effectivePreviewIdx!, updates)}
-                  onReset={() => resetStudentEdition(effectivePreviewIdx!)}
+                  onUpdate={(updates) => updateEdition(effectivePreviewIdx!, updates)}
+                  onReset={() => resetEdition(effectivePreviewIdx!)}
                 />
               </div>
             )}
 
-            {/* VISTA PREVIA */}
             <div className="glass-card p-5 animate-slide-up delay-200 sticky top-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Vista previa</h2>
@@ -352,7 +156,7 @@ export default function HomePage() {
                     className="text-xs px-3 py-1 rounded-full"
                     style={{ background: 'rgba(15, 118, 110, 0.1)', color: activeConfig.estilos.colorPrimario, border: `1px solid ${activeConfig.estilos.colorPrimario}33` }}
                   >
-                    {previewFichas.length === 1 
+                    {previewFichas.length === 1
                       ? `${previewFichas[0].practicante.apellido1} ${previewFichas[0].practicante.nombre}`
                       : `${previewFichas.length} alumnos en vista previa`}
                   </span>
@@ -369,9 +173,9 @@ export default function HomePage() {
                         </div>
                       )}
                       <div style={{ transform: 'scale(0.52)', transformOrigin: 'top center', width: '210mm', margin: '0 auto' }}>
-                        <FichaPracticasTemplate 
+                        <FichaPracticasTemplate
                           key={`preview-${ficha.practicante.dni}-${activeConfig.id}`}
-                          data={ficha} 
+                          data={ficha}
                         />
                       </div>
                     </div>
@@ -398,101 +202,5 @@ export default function HomePage() {
         <p>Generador de Fichas de Prácticas · {activeConfig.nombre} · {new Date().getFullYear()}</p>
       </footer>
     </main>
-  );
-}
-
-/* ── Subcomponente: FileUploader para modo ficha (multi-hoja) ── */
-function FichaFileUploader({
-  onFileLoaded,
-  fileName,
-}: Readonly<{
-  onFileLoaded: (rows: import('@/lib/types').ExcelRow[], file: File) => void;
-  fileName: string;
-}>) {
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const processFile = async (file: File) => {
-    if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
-      setError('Solo se admiten archivos .xlsx o .xls');
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    try {
-      const { parseExcelFileMultiSheet } = await import('@/lib/excel-parser');
-      const rows = await parseExcelFileMultiSheet(file, { headerRowIndex: 3 });
-      onFileLoaded(rows, file);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al leer el archivo');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file) processFile(file);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) processFile(file);
-  };
-
-  let uploaderContent: ReactNode;
-  if (isLoading) {
-    uploaderContent = (
-      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-        Leyendo Excel (todas las hojas)…
-      </p>
-    );
-  } else if (fileName) {
-    uploaderContent = (
-      <div>
-        <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>📊 {fileName}</p>
-        <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Haz clic para cambiar el archivo</p>
-      </div>
-    );
-  } else {
-    uploaderContent = (
-      <div>
-        <p className="text-2xl mb-2">📊</p>
-        <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-          Arrastra el Excel aquí o haz clic
-        </p>
-        <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-          Lee todas las hojas · Cabeceras en fila 4
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <label
-        className="block"
-        onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
-        onDragLeave={() => setIsDragOver(false)}
-        onDrop={handleDrop}
-      >
-        <div
-          className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all"
-          style={{
-            borderColor: isDragOver ? 'var(--accent)' : 'var(--card-border)',
-            background: isDragOver ? 'rgba(108,140,255,0.05)' : 'transparent',
-          }}
-        >
-          {uploaderContent}
-        </div>
-        <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleChange} />
-      </label>
-      {error && (
-        <p className="text-xs mt-2" style={{ color: 'var(--error)' }}>{error}</p>
-      )}
-    </div>
   );
 }

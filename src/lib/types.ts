@@ -38,8 +38,14 @@ export interface FichaValoresFijos {
   [key: string]: string | undefined;
 }
 
+/** Metadatos de origen Excel inyectados por el parser */
+export interface ExcelMeta {
+  _sheet?: string;
+  _rowIndex?: number;
+}
+
 /** Datos de un practicante mapeados desde el Excel */
-export interface Practicante {
+export interface Practicante extends ExcelMeta {
   nombre?: string;
   apellido1?: string;
   apellido2?: string;
@@ -49,28 +55,32 @@ export interface Practicante {
   email?: string;
   telefono?: string;
   titulacion?: string;
+  nacionalidad?: string;
   codigo_curso?: string;
   fechas_curso?: string;
   lugar_practicas?: string;
+  entidad?: string;
+  nif_entidad?: string;
   n_participantes?: string;
   su_grupo?: string;
   fecha_inicio?: string;
   fecha_final?: string;
   edad_participantes?: string;
   caracteristicas?: string;
-  entidad?: string;
   persona_contacto?: string;
+  dias_semana?: string;
+  horario?: string;
+  horas_realizadas?: string;
+  horas_planificadas?: string;
   n_monitores_titulados?: string;
   n_monitores_practicas?: string;
   coordinador_practicas?: string;
   coordinador_escuela?: string;
+  titulacion_tutor?: string;
   titulo_memoria?: string;
   fecha_entrega_memoria?: string;
   fecha_firma?: string;
   tipo_actividad?: string;
-  _sheet?: string;
-  _rowIndex?: number;
-  [key: string]: string | number | undefined;
 }
 
 /** Datos completos para renderizar una ficha de prácticas */
@@ -82,8 +92,8 @@ export interface FichaData {
 /** Fila genérica de un Excel (clave-valor) */
 export type ExcelRow = Record<string, string | number | undefined>;
 
-/** Resultado de validación */
-export interface ValidationResult {
+/** Resultado de validación de cabeceras Excel */
+export interface ExcelHeaderValidation {
   isValid: boolean;
   missingColumns: string[];
   foundColumns: string[];

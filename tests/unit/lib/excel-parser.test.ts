@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterEmptyPracticantes, validateExcelHeaders } from '@/lib/excel-parser';
+import { filterEmptyPracticantes, validateExcelHeaders } from '@/lib/excel/parser';
 import type { ExcelRow, FichaSchoolConfig } from '@/lib/types';
 
 const schoolConfig: FichaSchoolConfig = {
