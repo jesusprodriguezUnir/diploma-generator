@@ -107,7 +107,7 @@ export default function ManualPage() {
             <div className="step-number">4</div>
             <div className="step-content">
               <h3>Exportación</h3>
-              <p>Selecciona los alumnos deseados y elige entre "Generar PDF Único" (todas las fichas en un archivo) o "Descargar ZIP" (un archivo por alumno).</p>
+              <p>Selecciona los alumnos deseados y elige entre &ldquo;Generar PDF Único&rdquo; (todas las fichas en un archivo) o &ldquo;Descargar ZIP&rdquo; (un archivo por alumno).</p>
             </div>
           </div>
         </section>

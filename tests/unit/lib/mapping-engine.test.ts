@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildFichaData, mapExcelToPracticantes } from '@/lib/mapping-engine';
+import { buildFichaData, mapExcelToPracticantes } from '@/lib/mapping/engine';
 import type { ExcelRow, FichaSchoolConfig } from '@/lib/types';
 
 const schoolConfig: FichaSchoolConfig = {

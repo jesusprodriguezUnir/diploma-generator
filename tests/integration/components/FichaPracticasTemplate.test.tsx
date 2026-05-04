@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import FichaPracticasTemplate from '@/components/FichaPracticasTemplate';
+import FichaPracticasTemplate from '@/features/fichas/FichaPracticasTemplate';
 import type { FichaData } from '@/lib/types';
 import { fichaSchoolConfig } from '@/mocks/mock-fichas';
 
