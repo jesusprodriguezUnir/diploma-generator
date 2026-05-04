@@ -118,7 +118,7 @@ export default function FieldEditor({ practicante, schoolConfig, onUpdate, onRes
                       <select
                         id={`field-${field.key}`}
                         value={tipoActividadActual}
-                        onChange={(e) => handleChange(field.key, e.target.value)}
+onChange={(e) => handleChange(field.key as keyof Practicante, e.target.value)}
                         className="w-full bg-surface border border-border-card rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-accent transition-all"
                       >
                         {TIPO_ACTIVIDAD_OPTIONS.map(opt => (
@@ -186,7 +186,7 @@ export default function FieldEditor({ practicante, schoolConfig, onUpdate, onRes
                             ? (schoolConfig?.valoresFijos.entidad_organizadora_default ?? '')
                             : ''
                       }
-                      onChange={(e) => handleChange(field.key, e.target.value)}
+                      onChange={(e) => handleChange(field.key as keyof Practicante, e.target.value)}
                       className="w-full bg-surface border border-border-card rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-accent transition-all"
                     />
                   </div>
