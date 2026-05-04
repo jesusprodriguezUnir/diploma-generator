@@ -3,13 +3,12 @@ import { Checkbox } from '../Checkbox';
 
 interface SemanaCalendarProps {
   diasSemana: string;
-  isPernocta: boolean;
   isActividad1: boolean;
 }
 
-export default function SemanaCalendar({ diasSemana, isPernocta, isActividad1 }: SemanaCalendarProps) {
+export default function SemanaCalendar({ diasSemana, isActividad1 }: SemanaCalendarProps) {
   const dias = diasSemana.toUpperCase();
-  const check = (dia: string) => isActividad1 && (isPernocta || dias.includes(dia));
+  const check = (dia: string) => isActividad1 && dias.includes(dia);
 
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.8mm', padding: 0 }}>

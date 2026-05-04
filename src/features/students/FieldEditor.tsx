@@ -130,38 +130,39 @@ onChange={(e) => handleChange(field.key as keyof Practicante, e.target.value)}
                 }
 
                 if (field.key === 'dias_semana') {
-                  const currentDays = String(practicante.dias_semana || '');
-                  const isPernocta = tipoActividadActual === 'Campamento con pernocta';
+                  const diasConfigurados = schoolConfig?.valoresFijos.dias_semana_por_tipo as Record<string, string> | undefined;
+                  const diasDelTipo = tipoActividadActual ? diasConfigurados?.[tipoActividadActual] : undefined;
+                  const tieneDiasConfigurados = !!diasDelTipo;
+                  const currentDays = tieneDiasConfigurados 
+                    ? diasDelTipo 
+                    : String(practicante.dias_semana || '');
                   
                   return (
                     <div key={field.key} className="space-y-1 sm:col-span-2">
                       <label className="text-[10px] font-medium text-muted">
-                        {field.label} {isPernocta && <span className="text-accent/80 ml-1">(Se marcan todos por pernocta)</span>}
+                        {field.label} {tieneDiasConfigurados && <span className="text-accent/80 ml-1">(Configurados: {diasDelTipo})</span>}
                       </label>
                       <div className="flex gap-2 items-center flex-wrap">
                         {WEEK_DAYS.map((day) => {
-                          const isChecked = isPernocta || currentDays.includes(day);
+                          const isChecked = currentDays.includes(day);
                           return (
-                            <label key={day} className={`flex items-center gap-1 cursor-pointer select-none px-2 py-1 rounded border transition-colors ${isChecked ? 'bg-accent/10 border-accent/50 text-accent' : 'bg-surface border-border-card text-muted hover:border-accent/30'} ${isPernocta ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                            <label key={day} className={`flex items-center gap-1 cursor-pointer select-none px-2 py-1 rounded border transition-colors ${isChecked ? 'bg-accent/10 border-accent/50 text-accent' : 'bg-surface border-border-card text-muted hover:border-accent/30'}`}>
                               <input
                                 type="checkbox"
                                 className="hidden"
                                 checked={isChecked}
-                                disabled={isPernocta}
                                 onChange={() => handleDayToggle(day)}
                               />
                               <span className="text-xs font-bold">{day}</span>
                             </label>
                           );
                         })}
-                        {!isPernocta && (
-                          <button
-                            onClick={() => handleChange('dias_semana', '')}
-                            className="text-[10px] uppercase text-error/80 hover:text-error ml-2"
-                          >
-                            Limpiar
-                          </button>
-                        )}
+                        <button
+                          onClick={() => handleChange('dias_semana', '')}
+                          className="text-[10px] uppercase text-error/80 hover:text-error ml-2"
+                        >
+                          Limpiar
+                        </button>
                       </div>
                     </div>
                   );

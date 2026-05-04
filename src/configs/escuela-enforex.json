@@ -56,6 +56,10 @@
     "nif_entidad_default": "B83695742",
     "entidad_organizadora_default": "Enforex Camps",
     "tipo_actividad_default": "Campamento con pernocta",
+    "dias_semana_por_tipo": {
+      "Campamento con pernocta": "L,M,X,J,V,S,D",
+      "Campamento urbano": "L,M,X,J,V"
+    },
     "firma_escuela": "/logos/enforex/firmaysello.png",
     "sello_escuela": "",
     "firma_ancho_mm": "65",

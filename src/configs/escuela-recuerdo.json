@@ -56,6 +56,10 @@
     "nif_entidad_default": "G84510585",
     "entidad_organizadora_default": "Escuela Nuestra Señora del Recuerdo",
     "tipo_actividad_default": "Campamento con pernocta",
+    "dias_semana_por_tipo": {
+      "Campamento con pernocta": "L,M,X,J,V,S,D",
+      "Campamento urbano": "L,M,X,J,V"
+    },
     "firma_escuela": "/logos/recuerdo/firma.jpg",
     "sello_escuela": "/logos/recuerdo/sello.jpg",
     "firma_ancho_mm": "46",

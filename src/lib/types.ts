@@ -31,11 +31,12 @@ export interface FichaValoresFijos {
   ciudad: string;
   calificacion_default: string;
   tipo_actividad_default: string;
+  dias_semana_por_tipo?: Record<string, string>;
   nif_entidad_default?: string;
   entidad_organizadora_default?: string;
   firma_escuela?: string;
   sello_escuela?: string;
-  [key: string]: string | undefined;
+  [key: string]: string | undefined | Record<string, string>;
 }
 
 /** Metadatos de origen Excel inyectados por el parser */
