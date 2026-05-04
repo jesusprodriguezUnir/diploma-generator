@@ -12,7 +12,10 @@ interface ActividadesTableProps {
 export default function ActividadesTable({ actividad, practicante: p, fijos }: ActividadesTableProps) {
   const isActividad1 = actividad === 1;
   const tipoActividadActual = p.tipo_actividad || fijos.tipo_actividad_default || '';
-  const isPernocta = isActividad1 && tipoActividadActual === 'Campamento con pernocta';
+  const diasConfigurados = fijos.dias_semana_por_tipo as Record<string, string> | undefined;
+  const diasDelTipo = tipoActividadActual ? diasConfigurados?.[tipoActividadActual] : undefined;
+  const tieneDiasConfigurados = !!diasDelTipo;
+  const diasSemana = tieneDiasConfigurados ? diasDelTipo : (p.dias_semana || '');
 
   const entidad = isActividad1 ? (p.entidad || fijos.entidad_organizadora_default || '') : '';
   const nifEntidad = isActividad1 ? (p.nif_entidad || fijos.nif_entidad_default || '') : '';
@@ -20,7 +23,7 @@ export default function ActividadesTable({ actividad, practicante: p, fijos }: A
   const telefono = isActividad1 ? (p.persona_contacto ?? '') : '';
   const fechaInicio = isActividad1 ? (p.fecha_inicio ?? '') : '';
   const fechaFin = isActividad1 ? (p.fecha_final ?? '') : '';
-  const horario = isActividad1 ? (isPernocta ? 'Completo' : (p.horario ?? '')) : '';
+  const horario = isActividad1 ? (tieneDiasConfigurados ? 'Completo' : (p.horario ?? '')) : '';
   const horasRealizadas = isActividad1 ? (p.horas_realizadas ?? '160') : '';
   const horasPlanificadas = isActividad1 ? (p.horas_planificadas ?? '160') : '';
   const nParticipantes = isActividad1 ? (p.n_participantes ?? '') : '';
@@ -49,7 +52,7 @@ export default function ActividadesTable({ actividad, practicante: p, fijos }: A
           <td style={labelCell}>Tipo de actividad</td>
           <td colSpan={8} style={{ ...valueCell, padding: '2mm' }}>
             <div style={{ marginBottom: '1mm', display: 'flex', alignItems: 'center' }}>
-              <Checkbox checked={isPernocta} />
+              <Checkbox checked={isActividad1 && tipoActividadActual === 'Campamento con pernocta'} />
               <span style={{ marginLeft: '2mm' }}>Campamento con pernocta</span>
             </div>
             <div style={{ marginBottom: '1mm', display: 'flex', alignItems: 'center' }}>
@@ -88,8 +91,7 @@ export default function ActividadesTable({ actividad, practicante: p, fijos }: A
           <td style={labelCell}>Días de la semana</td>
           <td style={{ ...valueCell, padding: '2mm 1mm' }}>
             <SemanaCalendar
-              diasSemana={p.dias_semana || ''}
-              isPernocta={isPernocta}
+              diasSemana={diasSemana}
               isActividad1={isActividad1}
             />
           </td>

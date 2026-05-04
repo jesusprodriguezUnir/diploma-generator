@@ -13,10 +13,10 @@ export default function FirmasFooter({ fijos }: { fijos: FichaValoresFijos }) {
   const showSignature = Boolean(signatureSrc) && failedSignatureSrc !== signatureSrc;
   const showSeal = Boolean(sealSrc) && failedSealSrc !== sealSrc;
 
-  const signatureWidthMm = parsePositiveMm(fijos.firma_ancho_mm, 46);
-  const signatureHeightMm = parsePositiveMm(fijos.firma_alto_mm, 12);
-  const sealWidthMm = parsePositiveMm(fijos.sello_ancho_mm, 20);
-  const sealHeightMm = parsePositiveMm(fijos.sello_alto_mm, 20);
+  const signatureWidthMm = parsePositiveMm(fijos.firma_ancho_mm as string, 46);
+  const signatureHeightMm = parsePositiveMm(fijos.firma_alto_mm as string, 12);
+  const sealWidthMm = parsePositiveMm(fijos.sello_ancho_mm as string, 20);
+  const sealHeightMm = parsePositiveMm(fijos.sello_alto_mm as string, 20);
 
   return (
     <>
