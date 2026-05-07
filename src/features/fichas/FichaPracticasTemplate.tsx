@@ -91,7 +91,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
           <tbody>
             <tr>
               <td style={labelCell}>Nº total de horas realizadas (actividad 1 + actividad 2)</td>
-              <td style={valueCell}>{p.horas_realizadas ?? '160'}</td>
+              <td style={valueCell}>{p.horas_realizadas || '160'}</td>
             </tr>
           </tbody>
         </table>
@@ -145,7 +145,7 @@ const FichaPracticasTemplate = forwardRef<HTMLDivElement, FichaPracticasTemplate
             </tr>
             <tr>
               <td style={labelCell}>Tipo de titulación</td>
-              <td style={{ ...valueCell, minHeight: '6mm' }}>{p.titulacion_tutor ?? 'Coordinador/a de Tiempo Libre'}</td>
+              <td style={{ ...valueCell, minHeight: '6mm' }}>{p.titulacion_tutor || (fijos.titulacion_tutor_default as string) || 'Coordinador/a de Tiempo Libre'}</td>
             </tr>
           </tbody>
         </table>

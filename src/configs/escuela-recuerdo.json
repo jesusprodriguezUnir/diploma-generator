@@ -62,9 +62,10 @@
     },
     "firma_escuela": "/logos/recuerdo/firma.jpg",
     "sello_escuela": "/logos/recuerdo/sello.jpg",
-    "firma_ancho_mm": "46",
-    "firma_alto_mm": "12",
-    "sello_ancho_mm": "20",
-    "sello_alto_mm": "20"
+    "firma_ancho_mm": "30",
+    "firma_alto_mm": "30",
+    "sello_ancho_mm": "26",
+    "sello_alto_mm": "25",
+    "titulacion_tutor_default": "Coordinador/a de Tiempo Libre"
   }
 }

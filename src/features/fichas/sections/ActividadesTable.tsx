@@ -14,8 +14,7 @@ export default function ActividadesTable({ actividad, practicante: p, fijos }: A
   const tipoActividadActual = p.tipo_actividad || fijos.tipo_actividad_default || '';
   const diasConfigurados = fijos.dias_semana_por_tipo as Record<string, string> | undefined;
   const diasDelTipo = tipoActividadActual ? diasConfigurados?.[tipoActividadActual] : undefined;
-  const tieneDiasConfigurados = !!diasDelTipo;
-  const diasSemana = tieneDiasConfigurados ? diasDelTipo : (p.dias_semana || '');
+  const diasSemana: string = diasDelTipo ?? p.dias_semana ?? '';
 
   const entidad = isActividad1 ? (p.entidad || fijos.entidad_organizadora_default || '') : '';
   const nifEntidad = isActividad1 ? (p.nif_entidad || fijos.nif_entidad_default || '') : '';
@@ -23,9 +22,9 @@ export default function ActividadesTable({ actividad, practicante: p, fijos }: A
   const telefono = isActividad1 ? (p.persona_contacto ?? '') : '';
   const fechaInicio = isActividad1 ? (p.fecha_inicio ?? '') : '';
   const fechaFin = isActividad1 ? (p.fecha_final ?? '') : '';
-  const horario = isActividad1 ? (tieneDiasConfigurados ? 'Completo' : (p.horario ?? '')) : '';
-  const horasRealizadas = isActividad1 ? (p.horas_realizadas ?? '160') : '';
-  const horasPlanificadas = isActividad1 ? (p.horas_planificadas ?? '160') : '';
+  const horario = isActividad1 ? (p.horario || 'Completo') : '';
+  const horasRealizadas = isActividad1 ? (p.horas_realizadas || '160') : '';
+  const horasPlanificadas = isActividad1 ? (p.horas_planificadas || '160') : '';
   const nParticipantes = isActividad1 ? (p.n_participantes ?? '') : '';
   const edades = isActividad1 ? (p.edad_participantes ?? '') : '';
   const denominacion = isActividad1 ? (p.titulo_memoria ?? '') : '';

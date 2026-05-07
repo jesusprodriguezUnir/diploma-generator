@@ -185,7 +185,13 @@ onChange={(e) => handleChange(field.key as keyof Practicante, e.target.value)}
                           ? (schoolConfig?.valoresFijos.nif_entidad_default ?? '')
                           : field.key === 'entidad'
                             ? (schoolConfig?.valoresFijos.entidad_organizadora_default ?? '')
-                            : ''
+                            : field.key === 'titulacion_tutor'
+                              ? ((schoolConfig?.valoresFijos.titulacion_tutor_default as string) ?? 'Coordinador/a de Tiempo Libre')
+                              : field.key === 'horario'
+                                ? 'Completo'
+                                : field.key === 'horas_planificadas' || field.key === 'horas_realizadas'
+                                  ? '160'
+                                  : ''
                       }
                       onChange={(e) => handleChange(field.key as keyof Practicante, e.target.value)}
                       className="w-full bg-surface border border-border-card rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-accent transition-all"
